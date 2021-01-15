@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # vue-manage-system
 
 <a href="https://github.com/vuejs/vue">
@@ -195,3 +196,6 @@ import 'element-ui/lib/theme-default/index.css'; // 默认主题
 ## License
 
 [MIT](https://github.com/lin-xin/vue-manage-system/blob/master/LICENSE)
+=======
+# rule-platform-front
+>>>>>>> 4a92117cbcab74ab2194a439fb9323b11f8adea9

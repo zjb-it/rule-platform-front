@@ -45,6 +45,11 @@ export default new Router({
                     meta: {title: '元素'}
                 },
                 {
+                    path: '/variable',
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/Variable.vue'),
+                    meta: {title: '变量'}
+                },
+                {
                     // 富文本编辑器组件
                     path: '/editor',
                     component: () => import(/* webpackChunkName: "editor" */ '../components/page/VueEditor.vue'),

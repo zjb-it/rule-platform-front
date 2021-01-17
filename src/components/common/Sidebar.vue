@@ -71,6 +71,10 @@ export default {
                             title: '元素'
                         },
                         {
+                            index: 'variable',
+                            title: '变量'
+                        },
+                        {
                             index: '404',
                             title: '404页面'
                         }

@@ -13,8 +13,9 @@
                     type="primary"
                     icon="el-icon-lx-add"
                     class="handle-del mr10"
-                    @click="handleEdit"
-                >添加</el-button>
+                    @click="handleAdd"
+                >添加
+                </el-button>
                 <el-input v-model="query.query" placeholder="名称或code" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
             </div>
@@ -24,13 +25,13 @@
                 class="table"
                 ref="multipleTable"
                 header-cell-class-name="table-header"
-                @selection-change="handleSelectionChange"
             >
                 <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
                 <el-table-column prop="name" label="名称"></el-table-column>
                 <el-table-column prop="code" label="code"></el-table-column>
+                <el-table-column prop="valueDataType" label="数据类型"></el-table-column>
 
-                <el-table-column prop="description" label="描述"></el-table-column>
+                <el-table-column prop="description" label="描述" show-overflow-tooltip></el-table-column>
 
 
             </el-table>
@@ -47,29 +48,58 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="添加" :visible.sync="editVisible" width="30%">
+        <el-dialog title="添加元素" :visible.sync="editVisible" width="30%" >
             <el-form ref="form" :model="form" label-width="70px">
 
-                <el-form-item label="code">
-                    <el-input v-model="form.code"></el-input>
+                <el-form-item
+                    label="code"
+                    prop="code"
+                    :rules="[
+                    { required: true, message: 'code不能为空'},
+                    ]">
+                    <el-input type="code" v-model="form.code" auto-complete="off" ></el-input>
                 </el-form-item>
+
+                <el-form-item label="数据类型">
+                    <el-select v-model="form.valueType" style="width: 100%" >
+                        <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+
                 <el-form-item label="名称">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
+
                 <el-form-item label="描述">
                     <el-input type="textarea" v-model="form.description"></el-input>
                 </el-form-item>
+
+                <el-form-item size="large">
+                    <el-button type="primary" @click="saveEdit()">立即创建</el-button>
+                    <el-button>取消</el-button>
+                </el-form-item>
             </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="editVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
-            </span>
+
         </el-dialog>
     </div>
 </template>
 
 <script>
-import { elements } from '../../api/index';
+import request from '@/utils/request';
+
+export const elements = query => {
+    return request({
+        url: 'element/list',
+        method: 'post',
+        data: query
+    });
+};
 export default {
     name: 'basetable',
     data() {
@@ -87,9 +117,30 @@ export default {
             delList: [],
             editVisible: false,
             pageTotal: 0,
-            form: {},
+            form: {
+                valueType: 'NUMBER',
+            },
+            options: [
+                {
+                    value: 'COLLECTION',
+                    label: '集合'
+                },
+                {
+                    value: 'BOOLEAN',
+                    label: '布尔'
+                },
+                {
+                    value: 'STRING',
+                    label: '字符串'
+                }, {
+                    value: 'NUMBER',
+                    label: '数字'
+                }
+            ],
+
             idx: -1,
             id: -1
+
         };
     },
     created() {
@@ -112,13 +163,17 @@ export default {
 
 
         // 编辑操作
-        handleEdit() {
-            this.editVisible=true
+        handleAdd() {
+            this.editVisible = true;
         },
         // 保存编辑
         saveEdit() {
             this.editVisible = false;
-            this.$set(this.tableData, this.idx, this.form);
+
+            request.post("/element/add",this.form).then(res=>{
+                this.getData();
+            })
+
         },
         // 分页导航
         handlePageChange(val) {
@@ -142,16 +197,20 @@ export default {
     width: 300px;
     display: inline-block;
 }
+
 .table {
     width: 100%;
     font-size: 14px;
 }
+
 .red {
     color: #ff0000;
 }
+
 .mr10 {
     margin-right: 10px;
 }
+
 .table-td-thumb {
     display: block;
     margin: auto;

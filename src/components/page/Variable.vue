@@ -59,6 +59,7 @@
                         v-model="form.function"
                         filterable
                         remote
+                        clearable
                         reserve-keyword
                         placeholder="请输入函数名称"
                         @change="selectFunction"
@@ -74,11 +75,11 @@
                     </el-select>
                 </el-form-item>
 
-
-                <el-form-item v-for="item in form.function.variables">
-                    <div style="margin-top: 15px; margin-left: 10%">
-                        <el-input placeholder="请输入内容" v-model="select" class="input-with-select" style="width: 100%">
-                            <el-select v-model="select" slot="prepend" placeholder="请选择" >
+                <el-form-item :label="`${item.code}(${item.valueDataType})`" style=" margin-left: 15%" v-for="item in form.function.variables">
+                    <div>
+                        <el-input placeholder="请输入内容" v-model="select" class="input-with-select"
+                                  style="width: 100%">
+                            <el-select v-model="select" slot="prepend" placeholder="请选择" clearable >
                                 <el-option v-for="item in options"
                                            :label="item.label"
                                            :value="item.value"
@@ -88,7 +89,6 @@
                         </el-input>
                     </div>
                 </el-form-item>
-
 
                 <el-form-item label="描述">
                     <el-input type="textarea" v-model="form.description"></el-input>
@@ -151,15 +151,15 @@ export default {
             options: [
                 {
                     value: 'ELEMENT',
-                    label: '元'
+                    label: '元素'
                 },
                 {
                     value: 'VARIABLE',
-                    label: '变'
+                    label: '变量'
                 },
                 {
                     value: 'CONSTANT',
-                    label: '固'
+                    label: '固定值'
                 }
             ],
             idx: -1,
@@ -267,10 +267,9 @@ export default {
     height: 40px;
 }
 
-.el-input-group__prepend{
+.el-input-group__prepend {
     width: 20%;
 }
-
 
 
 </style>

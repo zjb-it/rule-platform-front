@@ -54,8 +54,6 @@
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
 
-
-
                 <el-form-item label="函数">
                     <el-select
                         v-model="form.function"
@@ -65,7 +63,7 @@
                         placeholder="请输入函数名称"
                         @change="selectFunction"
                         :remote-method="remoteMethod"
-                        :loading="loading" style="width: 100%" >
+                        :loading="loading" style="width: 100%">
                         <el-option
                             v-for="item in functions"
                             :key="item.name"
@@ -76,27 +74,21 @@
                     </el-select>
                 </el-form-item>
 
-                <el-row :gutter="20" v-for="item in form.function.variables" >
-                    <el-col :span="5">
-                        <div class="grid-content bg-purple" style="visibility: hidden"></div>
-                    </el-col>
-                    <el-col :span="16">
-                        <div class="grid-content bg-purple">
-                            <el-form-item :label="item.code" >
-                                <div style="margin-top: 15px;">
-                                    <el-input placeholder="请输入内容"  class="input-with-select">
-                                        <el-select v-model="valueType" slot="prepend" placeholder="请选择">
-                                            <el-option label="餐厅名" value="1"></el-option>
-                                            <el-option label="订单号" value="2"></el-option>
-                                            <el-option label="用户电话" value="3"></el-option>
-                                        </el-select>
-                                        <el-button slot="append" icon="el-icon-search"></el-button>
-                                    </el-input>
-                                </div>
-                            </el-form-item>
-                        </div>
-                    </el-col>
-                </el-row>
+
+                <el-form-item v-for="item in form.function.variables">
+                    <div style="margin-top: 15px; margin-left: 10%">
+                        <el-input placeholder="请输入内容" v-model="select" class="input-with-select" style="width: 100%">
+                            <el-select v-model="select" slot="prepend" placeholder="请选择" >
+                                <el-option v-for="item in options"
+                                           :label="item.label"
+                                           :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
+                        </el-input>
+                    </div>
+                </el-form-item>
+
 
                 <el-form-item label="描述">
                     <el-input type="textarea" v-model="form.description"></el-input>
@@ -145,7 +137,7 @@ export default {
                 }
 
             },
-            valueType: 1,
+            select: '',
             loading: false,
             tableData: [],
             editVisible: false,
@@ -154,18 +146,20 @@ export default {
                 valueType: 'NUMBER',
                 function: {}
             },
-            functions:{
-
-            },
+            functions: {},
 
             options: [
                 {
                     value: 'ELEMENT',
-                    label: '元素'
+                    label: '元'
                 },
                 {
                     value: 'VARIABLE',
-                    label: '变量'
+                    label: '变'
+                },
+                {
+                    value: 'CONSTANT',
+                    label: '固'
                 }
             ],
             idx: -1,
@@ -186,12 +180,12 @@ export default {
             });
         },
         listFunction() {
-            request.post("function/list",this.queryFunction).then(res=>{
-                this.functions=res.data;
-            })
+            request.post('function/list', this.queryFunction).then(res => {
+                this.functions = res.data;
+            });
         },
-        selectFunction(func){
-            console.log(this.form.function.name.variables)
+        selectFunction(func) {
+            console.log(this.form.function.name.variables);
         },
 
         // 触发搜索按钮
@@ -201,7 +195,7 @@ export default {
         },
 
         remoteMethod(query) {
-            console.log("remoteMethod")
+            console.log('remoteMethod');
             // if (query !== '') {
             //     this.loading = true;
             //     setTimeout(() => {
@@ -237,7 +231,9 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+
+
 .handle-box {
     margin-bottom: 20px;
 }
@@ -271,35 +267,10 @@ export default {
     height: 40px;
 }
 
-/*.el-row {*/
-/*    margin-bottom: 20px;*/
-/*    &:last-child {*/
-/*     margin-bottom: 0;*/
-/*    }*/
-/*}*/
-
-
-.el-col {
-    border-radius: 4px;
-}
-
-.bg-purple-dark {
-    background: #99a9bf;
+.el-input-group__prepend{
+    width: 20%;
 }
 
 
 
-.bg-purple-light {
-    background: #e5e9f2;
-}
-
-.grid-content {
-    border-radius: 4px;
-    min-height: 36px;
-}
-
-.row-bg {
-    padding: 10px 0;
-    background-color: #f9fafc;
-}
 </style>

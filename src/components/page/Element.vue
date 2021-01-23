@@ -82,7 +82,7 @@
 
                 <el-form-item size="large">
                     <el-button type="primary" @click="saveEdit()">立即创建</el-button>
-                    <el-button>取消</el-button>
+                    <el-button @click="editVisible = false">取消</el-button>
                 </el-form-item>
             </el-form>
 

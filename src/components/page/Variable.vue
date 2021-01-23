@@ -47,14 +47,14 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="添加变量" :visible.sync="editVisible" width="30%">
-            <el-form ref="form" :model="form" label-width="70px">
+        <el-dialog title="添加变量" @cancal="onCancel" :visible.sync="editVisible" width="30%">
+            <el-form ref="formRef" :model="form" label-width="70px">
 
-                <el-form-item label="名称">
+                <el-form-item label="名称" prop="name">
                     <el-input v-model="form.name"></el-input>
                 </el-form-item>
 
-                <el-form-item label="函数">
+                <el-form-item label="函数" prop="function.name">
                     <el-select
                         v-model="form.function"
                         filterable
@@ -63,23 +63,30 @@
                         reserve-keyword
                         placeholder="请输入函数名称"
                         @change="selectFunction"
+                        @focus="functionFocus"
                         :remote-method="remoteMethod"
                         :loading="loading" style="width: 100%">
                         <el-option
                             v-for="item in functions"
                             :key="item.name"
-                            :label="item.name"
+                            :label="item.description"
                             :value="item"
                         >
                         </el-option>
                     </el-select>
                 </el-form-item>
 
-                <el-form-item :label="`${item.code}(${item.valueDataType})`" style=" margin-left: 15%" v-for="item in form.function.variables">
+                <el-form-item :label="`${item.description}(${item.valueDataType})`" style=" margin-left: 15%"
+                              v-for="(item,i) in form.function.variables" prop="function.variables">
                     <div>
                         <el-input placeholder="请输入内容" v-model="select" class="input-with-select"
                                   style="width: 100%">
-                            <el-select v-model="select" slot="prepend" placeholder="请选择" clearable >
+
+                            <el-select v-if="item.valueDataType==='OBJECT' || item.valueDataType==='JSONOBJECT'"
+                                       value="变量" slot="prepend" disabled >
+                            </el-select>
+
+                            <el-select v-else v-model="form.function.variables[i].valueType" slot="prepend" placeholder="请选择" clearable>
                                 <el-option v-for="item in options"
                                            :label="item.label"
                                            :value="item.value"
@@ -90,13 +97,13 @@
                     </div>
                 </el-form-item>
 
-                <el-form-item label="描述">
+                <el-form-item label="描述" prop="description">
                     <el-input type="textarea" v-model="form.description"></el-input>
                 </el-form-item>
 
                 <el-form-item size="large">
                     <el-button type="primary" @click="saveEdit()">立即创建</el-button>
-                    <el-button>取消</el-button>
+                    <el-button @click="onCancel">取消</el-button>
                 </el-form-item>
             </el-form>
             <!--            <span slot="footer" class="dialog-footer">-->
@@ -166,13 +173,9 @@ export default {
             id: -1
         };
     },
-    created() {
-        this.getData();
-    },
-    mounted() {
-        this.listFunction();
-    },
     methods: {
+        
+
         getData() {
             variables(this.query).then(res => {
                 this.tableData = res.data;
@@ -185,7 +188,8 @@ export default {
             });
         },
         selectFunction(func) {
-            console.log(this.form.function.name.variables);
+
+            console.log(func.variables);
         },
 
         // 触发搜索按钮
@@ -193,9 +197,11 @@ export default {
             this.$set(this.query.page, 'pageIndex', 1);
             this.getData();
         },
-
+        functionFocus(){
+          this.listFunction();
+        },
         remoteMethod(query) {
-            console.log('remoteMethod');
+            console.log(query+'remoteMethod');
             // if (query !== '') {
             //     this.loading = true;
             //     setTimeout(() => {
@@ -209,6 +215,12 @@ export default {
             //     this.options = [];
             // }
         },
+
+        onCancel() {
+            this.editVisible = false;
+
+        },
+
         // 编辑操作
         handleAdd() {
             this.editVisible = true;
@@ -227,7 +239,11 @@ export default {
             this.$set(this.query.page, 'pageIndex', val);
             this.getData();
         }
-    }
+    },
+    created() {
+        this.getData();
+    },
+
 };
 </script>
 
@@ -268,7 +284,7 @@ export default {
 }
 
 .el-input-group__prepend {
-    width: 20%;
+    width: 28%;
 }
 
 

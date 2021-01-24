@@ -45,6 +45,11 @@ export default new Router({
                     meta: {title: '元素'}
                 },
                 {
+                    path: '/condition',
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/Condition.vue'),
+                    meta: {title: '条件'}
+                },
+                {
                     path: '/variable',
                     component: () => import(/* webpackChunkName: "form" */ '../components/page/Variable.vue'),
                     meta: {title: '变量'}

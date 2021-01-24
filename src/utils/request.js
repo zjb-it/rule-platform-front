@@ -1,4 +1,8 @@
 import axios from 'axios';
+import Vue from 'vue';
+import { walkTreeNode } from 'element-ui/packages/table/src/util';
+import de from 'element-ui/src/locale/lang/de';
+import ElementUI from 'element-ui';
 
 
 const service = axios.create({
@@ -14,7 +18,6 @@ service.interceptors.request.use(
         return config;
     },
     error => {
-        console.log(error);
         return Promise.reject();
     }
 );
@@ -22,14 +25,21 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
     response => {
-        if (response.status === 200) {
+        if (response.data.code === '0000') {
             return response.data;
         } else {
+            ElementUI.Message({
+                message: response.data.message,
+                type: 'error'
+            });
             Promise.reject();
         }
     },
     error => {
-        console.log(error);
+        ElementUI.Message({
+            message: error,
+            type: 'error'
+        });
         return Promise.reject();
     }
 );

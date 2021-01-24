@@ -75,6 +75,10 @@ export default {
                             title: '变量'
                         },
                         {
+                            index: 'condition',
+                            title: '条件'
+                        },
+                        {
                             index: '404',
                             title: '404页面'
                         }

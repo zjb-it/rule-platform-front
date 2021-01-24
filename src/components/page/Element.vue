@@ -16,7 +16,7 @@
                     @click="handleAdd"
                 >添加
                 </el-button>
-                <el-input v-model="query.query" placeholder="名称或code" class="handle-input mr10"></el-input>
+                <el-input v-model="query.query.name" placeholder="名称或code" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
             </div>
             <el-table
@@ -61,9 +61,9 @@
                 </el-form-item>
 
                 <el-form-item label="数据类型">
-                    <el-select v-model="form.valueType" style="width: 100%" >
+                    <el-select v-model="form.valueDataType" style="width: 100%" >
                         <el-option
-                            v-for="item in options"
+                            v-for="item in valueDataTypes"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value">
@@ -105,7 +105,7 @@ export default {
     data() {
         return {
             query: {
-                'query': '',
+                'query': {},
                 page: {
                     pageIndex: 1,
                     pageSize: 10
@@ -118,9 +118,9 @@ export default {
             editVisible: false,
             pageTotal: 0,
             form: {
-                valueType: 'NUMBER',
+                valueDataType: 'NUMBER',
             },
-            options: [
+            valueDataTypes: [
                 {
                     value: 'COLLECTION',
                     label: '集合'
@@ -135,6 +135,9 @@ export default {
                 }, {
                     value: 'NUMBER',
                     label: '数字'
+                },{
+                    value: 'JSONOBJECT',
+                    label: 'JSON对象'
                 }
             ],
 

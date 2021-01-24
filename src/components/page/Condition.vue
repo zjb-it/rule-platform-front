@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 变量
+                    <i class="el-icon-lx-cascades"></i>条件
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -16,7 +16,7 @@
                     @click="handleAdd"
                 >添加
                 </el-button>
-                <el-input v-model="query.query.name" placeholder="名称" class="handle-input mr10"></el-input>
+                <el-input v-model="query.query" placeholder="名称" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
             </div>
             <el-table
@@ -28,12 +28,105 @@
             >
                 <af-table-column prop="id" label="ID" align="center"></af-table-column>
                 <af-table-column prop="name" label="名称"></af-table-column>
-                <el-table-column prop="valueDataType" label="数据类型"></el-table-column>
-
-                <af-table-column prop="description" label="描述"></af-table-column>
-
+                <af-table-column prop="config" label="配置"></af-table-column>
 
             </el-table>
+
+
+
+
+            <el-dialog title="添加条件" :visible.sync="addVisible" width="30%" @close="closedDiaglog">
+                <el-form ref="conditionForm" :model="conditionForm" label-width="70px">
+
+                    <el-form-item label="名称" prop="name">
+                        <el-input v-model="conditionForm.name"></el-input>
+                    </el-form-item>
+
+
+                    <el-form-item label="左值" style=" margin-left: 15%" prop="leftVariable">
+
+                        <div>
+                            <el-autocomplete
+                                v-model="conditionForm.config.leftVariable.valueDescription"
+                                placeholder="请输入内容"
+                                :disabled="conditionForm.config.leftVariable.valueType===''"
+                                :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.leftVariable.valueType)})"
+                                @select="((value)=>{handleSelect(value,i,conditionForm.config.leftVariable.valueType)})"
+                            >
+                                <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
+                                           placeholder="请选择">
+                                    <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-autocomplete>
+                        </div>
+
+                    </el-form-item>
+
+                    <el-form-item label="符号" style=" margin-left: 15%" prop="symbol">
+
+                        <div>
+                            <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"
+                                       :disabled="conditionForm.config.leftVariable.valueDescription===''"
+                                       @focus="searchSymbol()"
+                            >
+                                <el-option
+                                    v-for="item in symbols"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
+                      </div>
+                    </el-form-item>
+
+                    <el-form-item label="左值" style=" margin-left: 15%" prop="rightVariable">
+
+                        <div>
+                            <el-autocomplete
+                                v-model="conditionForm.config.rightVariable.valueDescription"
+                                placeholder="请输入内容"
+                                :disabled="conditionForm.config.rightVariable.valueType===''"
+                                :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.rightVariable.valueType)})"
+                                @select="((value)=>{handleSelect(value,i,conditionForm.config.rightVariable.valueType)})"
+                            >
+                                <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
+                                           :disabled="conditionForm.config.symbol===''"
+                                           placeholder="请选择"
+                                >
+                                    <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-autocomplete>
+                        </div>
+
+                    </el-form-item>
+
+
+                    <el-form-item label="描述" prop="description">
+                        <el-input type="textarea" v-model="conditionForm.description"></el-input>
+                    </el-form-item>
+
+                    <el-form-item size="large">
+                        <el-button type="primary" @click="addCondition()">立即创建</el-button>
+                        <el-button @click="addVisible=false">取消</el-button>
+                    </el-form-item>
+                </el-form>
+
+            </el-dialog>
+
+
             <div class="pagination">
                 <el-pagination
                     background
@@ -47,78 +140,13 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="添加变量" :visible.sync="editVisible" width="30%" @close="closedDiaglog">
-            <el-form ref="form" :model="form" label-width="70px">
-
-                <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="数据类型" prop="valueDataType">
-                    <el-select v-model="form.valueDataType" style="width: 100%">
-                        <el-option
-                            v-for="item in valueDataTypes"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="函数" prop="function">
-                    <el-select
-                        v-model="form.function"
-                        filterable
-                        remote
-                        clearable
-                        reserve-keyword
-                        @change="addVariable"
-                        placeholder="请输入函数名称"
-                        @focus="functionFocus"
-                        :remote-method="remoteMethod"
-                        :loading="loading" style="width: 100%">
-                        <el-option
-                            v-for="item in functions"
-                            :key="item.name"
-                            :label="item.description"
-                            :value="item"
-                        >
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-
-                <el-form-item style=" margin-left: 15%" v-for="(item,i) in variableItem" prop="variables">
-                    <span slot="label">{{item.description}}</span>
-                    <div style="margin-top: 15px;">
-                        <el-input placeholder="请输入内容" v-model="select" class="input-with-select">
-                            <el-select v-model="select" slot="prepend" placeholder="请选择">
-                                <el-option label="餐厅名" value="1"></el-option>
-                                <el-option label="订单号" value="2"></el-option>
-                                <el-option label="用户电话" value="3"></el-option>
-                            </el-select>
-                        </el-input>
-                    </div>
-                </el-form-item>
-
-                <el-form-item label="描述" prop="description">
-                    <el-input type="textarea" v-model="form.description"></el-input>
-                </el-form-item>
-
-                <el-form-item size="large">
-                    <el-button type="primary" @click="saveEdit()">立即创建</el-button>
-                    <el-button @click="editVisible =false">取消</el-button>
-                </el-form-item>
-            </el-form>
-            <!--            <span slot="footer" class="dialog-footer">-->
-            <!--                <el-button @click="editVisible = false">取 消</el-button>-->
-            <!--                <el-button type="primary" @click="saveEdit">确 定</el-button>-->
-            <!--            </span>-->
-        </el-dialog>
     </div>
 </template>
 
 <script>
 import request from '@/utils/request';
 
-export const variables = query => {
+export const listConditions = query => {
     return request({
         url: 'condition/list',
         method: 'post',
@@ -126,11 +154,11 @@ export const variables = query => {
     });
 };
 export default {
-    name: 'basetable',
+    name: 'conditionTable',
     data() {
         return {
             query: {
-                'query': {},
+                'query': '',
                 page: {
                     pageIndex: 1,
                     pageSize: 10
@@ -138,17 +166,30 @@ export default {
 
             },
             searchFunctionName: '',
-            select: '',
             loading: false,
+            symbols:[],
             tableData: [],
-            editVisible: false,
+            addVisible: false,
             pageTotal: 0,
-            form: {
-                valueDataType: 'NUMBER',
-                function: ''
+            conditionForm: {
+                config: {
+                    leftVariable: {
+                        value: '',
+                        valueDataType: '',
+                        valueName: '',
+                        valueType: ''
+                    },
+                    rightVariable: {
+                        value: '',
+                        valueDataType: '',
+                        valueName: '',
+                        valueType: ''
+                    },
+                    symbol: ''
+                },
+                description: '',
+                name: ''
             },
-            functions:[],
-            variableItem:[],
             valueDataTypes: [
                 {
                     value: 'COLLECTION',
@@ -192,23 +233,56 @@ export default {
     },
     methods: {
 
-
         getData() {
-            variables(this.query).then(res => {
+            listConditions(this.query).then(res => {
                 this.tableData = res.data;
                 this.pageTotal = res.total || 10;
             });
         },
-        listFunction() {
-            request.get('function/list', { params: { 'name': this.searchFunctionName } }).then(res => {
-                this.functions = res.data;
-            });
-        },
-        addVariable(){
+        querySearchAsync(queryString, cb, valueType, valueDataType) {
 
+            if (valueType !== 'CONSTANT' && queryString && queryString !== '' && cb) {
+                var param={};
+                param.name=queryString
+                if (valueDataType){
+                    param.valueDataType=[valueDataType]
+                }
+                var data = [];
+                if (valueType === 'VARIABLE') {
+                    request.post('variable/list',{
+                        query: param,
+                        page: {
+                            pageIndex: 1,
+                            pageSize: 10
+                        }
+                    }).then(function(res) {
+                        for (let i = 0; i < res.data.length; i++) {
+                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
+                        }
+                        cb(data);
+                    });
+
+                } else if (valueType === 'ELEMENT') {
+                    request.post('element/list', {
+                        query: param,
+                        page: {
+                            pageIndex: 1,
+                            pageSize: 10
+                        }
+                    }).then(res => {
+                        for (let i = 0; i < res.data.length; i++) {
+                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
+                        }
+                        cb(data);
+                    });
+
+                }
+            }
         },
+
+
         closedDiaglog() {
-            this.$refs.form.resetFields();
+            this.$refs.conditionForm.resetFields();
         },
 
         // 触发搜索按钮
@@ -216,9 +290,7 @@ export default {
             this.$set(this.query.page, 'pageIndex', 1);
             this.getData();
         },
-        functionFocus(name) {
-            this.listFunction();
-        },
+
         remoteMethod(query) {
             this.searchFunctionName = query;
             this.listFunction();
@@ -228,16 +300,12 @@ export default {
 
         // 编辑操作
         handleAdd() {
-            console.log(this.form.function)
-            this.editVisible = true;
+            this.addVisible = true;
         },
         // 保存编辑
-        saveEdit() {
-            this.editVisible = false;
+        addCondition() {
+            this.addVisible = false;
 
-            request.post('/element/add', this.form).then(res => {
-                this.getData();
-            });
 
         },
         // 分页导航

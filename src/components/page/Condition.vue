@@ -51,7 +51,7 @@
                                 placeholder="请输入内容"
                                 :disabled="conditionForm.config.leftVariable.valueType===''"
                                 :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.leftVariable.valueType)})"
-                                @select="((value)=>{handleSelect(value,i,conditionForm.config.leftVariable.valueType)})"
+                                @select="((value)=>{handleSelect(value,conditionForm.config.leftVariable.valueType,'left')})"
                             >
                                 <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
                                            placeholder="请选择">
@@ -94,7 +94,7 @@
                                 placeholder="请输入内容"
                                 :disabled="conditionForm.config.rightVariable.valueType===''"
                                 :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.rightVariable.valueType)})"
-                                @select="((value)=>{handleSelect(value,i,conditionForm.config.rightVariable.valueType)})"
+                                @select="((value)=>{handleSelect(value,conditionForm.config.rightVariable.valueType,'right')})"
                             >
                                 <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
                                            :disabled="conditionForm.config.symbol===''"
@@ -171,6 +171,7 @@ export default {
             tableData: [],
             addVisible: false,
             pageTotal: 0,
+            leftValueDataType:'',
             conditionForm: {
                 config: {
                     leftVariable: {
@@ -224,7 +225,7 @@ export default {
                 },
                 {
                     value: 'CONSTANT',
-                    label: '固定值'
+                    label: '固定值-字符串'
                 }
             ],
             idx: -1,
@@ -238,6 +239,27 @@ export default {
                 this.tableData = res.data;
                 this.pageTotal = res.total || 10;
             });
+        },
+        searchSymbol(leftValueDataType) {
+
+        },
+        handleSelect(value,  valueType,leftOrRight) {
+            if (leftOrRight==='left'){
+                if (valueType === 'CONSTANT') {
+                    this.conditionForm.config.leftVariable.value = value;
+                } else {
+                    this.conditionForm.config.leftVariable.value = value.id;
+                }
+            }else {
+                if (valueType === 'CONSTANT') {
+                    this.conditionForm.config.rightVariable.value = value;
+                } else {
+                    this.conditionForm.config.rightVariable.value = value.id;
+                }
+            }
+
+
+
         },
         querySearchAsync(queryString, cb, valueType, valueDataType) {
 

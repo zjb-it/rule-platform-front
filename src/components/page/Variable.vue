@@ -103,6 +103,7 @@
                             v-model="form.function.variables[i].valueDescription"
                             placeholder="请输入变量名称"
                             :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,'VARIABLE','POJO')})"
+
                             @select="((value)=>{handleSelect(value,i,form.function.variables[i].valueType)})"
                         >
                             <el-select v-model="form.function.variables[i].valueType='变量'" slot="prepend" disabled>
@@ -150,16 +151,17 @@
             <el-form :model="showForm" label-width="78px" disabled>
 
                 <el-form-item label="名称" prop="name">
-                    <el-input v-model="showForm.name" ></el-input>
+                    <el-input v-model="showForm.name"></el-input>
                 </el-form-item>
                 <el-form-item label="数据类型" prop="valueDataType">
-                    <el-input v-model="showForm.valueDataType" ></el-input>
+                    <el-input v-model="showForm.valueDataType"></el-input>
                 </el-form-item>
                 <el-form-item label="函数" prop="function">
-                    <el-input v-model="showForm.function.name" ></el-input>
+                    <el-input v-model="showForm.function.name"></el-input>
                 </el-form-item>
 
-                <el-form-item style=" margin-left: 15%" v-for="(item,i) in showForm.function.variables" prop="variables">
+                <el-form-item style=" margin-left: 15%" v-for="(item,i) in showForm.function.variables"
+                              prop="variables">
                     <span slot="label">
                         <p style="color: #20a0ff;">{{ item.description }}</p>
                         <p style="color: #20a0ff;">({{ item.valueDataType }})</p>
@@ -197,6 +199,35 @@ export const variables = query => {
 export default {
     name: 'basetable',
     data() {
+        var validateConstant = (rule, value, callback) => {
+
+
+            for (const variable of this.form.function.variables) {
+                if (variable.value === '') {
+                    callback(new Error('不能为空'));
+                    return;
+                }
+                if (variable.valueType === 'CONSTANT') {
+                    if (variable.valueDataType === 'BOOLEAN') {
+                        if (variable.value!=='true' && variable.value!=='false') {
+                            callback(new Error('布尔类型只能是true或false'));
+                        }
+                    } else if (variable.valueDataType === 'COLLECTION') {
+                        if (!Array.isArray(JSON.parse(variable.value))) {
+                            callback(new Error('不是数组类型，数组类型格式为[1,2,3]'));
+                        }
+                    } else if (variable.valueDataType === 'JSONOBJECT') {
+                        if (typeof JSON.parse(variable.value)!=='object' || Array.isArray(JSON.parse(variable.value))) {
+                            callback(new Error('不是JSON类型，json类型为{...}'));
+                        }
+                    } else {
+                        callback();
+                    }
+                } else {
+                    callback();
+                }
+            }
+        };
         return {
             query: {
                 'query': {},
@@ -217,7 +248,7 @@ export default {
                 valueDataType: 'NUMBER',
                 function: {}
             },
-            showForm:{
+            showForm: {
                 valueDataType: '',
                 function: {}
             },
@@ -261,6 +292,7 @@ export default {
             ],
             idx: -1,
             id: -1,
+
             rules: {
                 name: [
                     { required: true, message: '请输入变量名称', trigger: 'blur' }
@@ -270,6 +302,9 @@ export default {
                 ],
                 valueDataType: [
                     { required: true, message: '请选择函数', trigger: 'change' }
+                ],
+                variables: [
+                    { validator: validateConstant, trigger: 'blur' }
                 ]
 
 
@@ -314,8 +349,8 @@ export default {
         },
         showVaiableDetail(variable) {
             request.get('variable/get', { params: { 'id': variable.id } }).then(res => {
-                this.showForm=res.data;
-                this.showVisible=true
+                this.showForm = res.data;
+                this.showVisible = true;
             });
         },
         handleSelect(value, i, valueType) {

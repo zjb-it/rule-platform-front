@@ -33,84 +33,83 @@
             </el-table>
 
 
-
-
             <el-dialog title="添加条件" :visible.sync="addVisible" width="30%" @close="closedDiaglog">
-                <el-form ref="conditionForm" :model="conditionForm" label-width="70px">
+                <el-form ref="conditionForm" :model="conditionForm" label-width="70px" :rules="conditionFormRules">
 
                     <el-form-item label="名称" prop="name">
                         <el-input v-model="conditionForm.name"></el-input>
                     </el-form-item>
 
 
-                    <el-form-item label="左值" style=" margin-left: 15%" prop="leftVariable">
+                    <el-form-item label="左值" style=" margin-left: 5%" prop="leftVariable">
 
                         <div>
-                            <el-autocomplete
-                                v-model="conditionForm.config.leftVariable.valueDescription"
-                                placeholder="请输入内容"
-                                :disabled="conditionForm.config.leftVariable.valueType===''"
-                                :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.leftVariable.valueType)})"
-                                @select="((value)=>{handleSelect(value,conditionForm.config.leftVariable.valueType,'left')})"
-                            >
-                                <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
-                                           placeholder="请选择">
-                                    <el-option
-                                        v-for="item in options"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    >
-                                    </el-option>
-                                </el-select>
-                            </el-autocomplete>
-                        </div>
-
-                    </el-form-item>
-
-                    <el-form-item label="符号" style=" margin-left: 15%" prop="symbol">
-
-                        <div>
-                            <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"
-                                       :disabled="conditionForm.config.leftVariable.valueDescription===''"
-                                       @focus="searchSymbol()"
-                            >
+                            <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
+                                       placeholder="请选择" style="width: 28%;margin-right: 4%">
                                 <el-option
-                                    v-for="item in symbols"
+                                    v-for="item in options"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"
                                 >
                                 </el-option>
                             </el-select>
-                      </div>
-                    </el-form-item>
 
-                    <el-form-item label="左值" style=" margin-left: 15%" prop="rightVariable">
+                            <el-input
+                                v-if="conditionForm.config.leftVariable.valueType!=='ELEMENT' && conditionForm.config.leftVariable.valueType!=='VARIABLE'"
+                                v-model="conditionForm.config.leftVariable.value" style="width: 68%"
+                                :disabled="conditionForm.config.leftVariable.valueType===''"
 
-                        <div>
-                            <el-autocomplete
-                                v-model="conditionForm.config.rightVariable.valueDescription"
-                                placeholder="请输入内容"
-                                :disabled="conditionForm.config.rightVariable.valueType===''"
-                                :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,conditionForm.config.rightVariable.valueType)})"
-                                @select="((value)=>{handleSelect(value,conditionForm.config.rightVariable.valueType,'right')})"
-                            >
-                                <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
-                                           :disabled="conditionForm.config.symbol===''"
-                                           placeholder="请选择"
+                            ></el-input>
+                            <el-select
+                                v-else
+                                v-model="conditionForm.config.leftVariable.value"
+                                filterable
+                                remote
+                                clearable
+                                :disabled="conditionForm.config.leftVariable.valueType===''"
+                                reserve-keyword
+                                placeholder="请输入名称"
+                                @focus="focusValue"
+                                value-key="id"
+                                :remote-method="((queryString)=>{remoteValue(queryString,conditionForm.config.leftVariable.value)})"
+                                :loading="loading" style="width: 68%">
+                                <el-option
+                                    v-for="item in values"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id"
                                 >
-                                    <el-option
-                                        v-for="item in options"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    >
-                                    </el-option>
-                                </el-select>
-                            </el-autocomplete>
+                                </el-option>
+                            </el-select>
+
                         </div>
 
+                    </el-form-item>
+
+
+                    <el-form-item label="符号" style=" margin-left: 5%" prop="symbol">
+
+                        <div>
+                            <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"
+                                       :disabled="conditionForm.config.leftVariable.value===''"
+                                       @focus="(()=>{searchSymbol(conditionForm.config.leftVariable.valueType)})"
+                                       value-key="symbol"
+                            >
+                                <el-option
+                                    v-for="item in symbols"
+                                    :key="item.symbol"
+                                    :label="item.symbol"
+                                    :value="item"
+                                >
+                                </el-option>
+                            </el-select>
+                        </div>
+                    </el-form-item>
+
+
+                    <el-form-item label="右值" style=" margin-left: 5%" prop="rightVariable">
+                        <ConditionLeft :data="conditionForm.rightVariable"></ConditionLeft>
                     </el-form-item>
 
 
@@ -145,6 +144,7 @@
 
 <script>
 import request from '@/utils/request';
+import ConditionLeft from '@/components/page/ConditionLeft';
 
 export const listConditions = query => {
     return request({
@@ -153,8 +153,13 @@ export const listConditions = query => {
         data: query
     });
 };
+
+
 export default {
     name: 'conditionTable',
+    components: {
+        ConditionLeft
+    },
     data() {
         return {
             query: {
@@ -167,11 +172,11 @@ export default {
             },
             searchFunctionName: '',
             loading: false,
-            symbols:[],
+            symbols: [],
             tableData: [],
             addVisible: false,
             pageTotal: 0,
-            leftValueDataType:'',
+            leftValueDataType: '',
             conditionForm: {
                 config: {
                     leftVariable: {
@@ -224,12 +229,40 @@ export default {
                     label: '变量'
                 },
                 {
-                    value: 'CONSTANT',
-                    label: '固定值-字符串'
+                    value: 'STRING',
+                    label: '字符串'
+                },
+                {
+                    value: 'BOOLEAN',
+                    label: '布尔'
+                },
+                {
+                    value: 'COLLECTION',
+                    label: '集合'
+                },
+                {
+                    value: 'NUMBER',
+                    label: '数字'
+                }
+            ],
+            values: [],
+            rightValueDataTypes: [
+                {
+                    value: 'ELEMENT',
+                    label: '元素'
+                },
+                {
+                    value: 'VARIABLE',
+                    label: '变量'
                 }
             ],
             idx: -1,
-            id: -1
+            id: -1,
+            conditionFormRules:{
+                name: [
+                    { required: true, message: '请输入条件名称', trigger: 'blur' }
+                ]
+            }
         };
     },
     methods: {
@@ -242,64 +275,71 @@ export default {
         },
         searchSymbol(leftValueDataType) {
 
+            request.post('/symbol/get', { 'valueDataType': leftValueDataType }).then(res => {
+                this.symbols = res.data;
+            });
         },
-        handleSelect(value,  valueType,leftOrRight) {
-            if (leftOrRight==='left'){
-                if (valueType === 'CONSTANT') {
-                    this.conditionForm.config.leftVariable.value = value;
-                } else {
-                    this.conditionForm.config.leftVariable.value = value.id;
-                }
-            }else {
-                if (valueType === 'CONSTANT') {
-                    this.conditionForm.config.rightVariable.value = value;
-                } else {
-                    this.conditionForm.config.rightVariable.value = value.id;
+        listRightValueDataType() {
+            this.$data.rightValueDataTypes = this.$options.data().rightValueDataTypes;
+            for (const valueDataType of this.conditionForm.config.symbol.valueDataTypes) {
+                for (const option of this.options) {
+                    if (option.value === valueDataType) {
+                        this.rightValueDataTypes.push(option);
+                    }
                 }
             }
-
-
-
         },
-        querySearchAsync(queryString, cb, valueType, valueDataType) {
 
-            if (valueType !== 'CONSTANT' && queryString && queryString !== '' && cb) {
-                var param={};
-                param.name=queryString
-                if (valueDataType){
-                    param.valueDataType=[valueDataType]
-                }
-                var data = [];
-                if (valueType === 'VARIABLE') {
-                    request.post('variable/list',{
-                        query: param,
-                        page: {
-                            pageIndex: 1,
-                            pageSize: 10
-                        }
-                    }).then(function(res) {
-                        for (let i = 0; i < res.data.length; i++) {
-                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
-                        }
-                        cb(data);
-                    });
-
-                } else if (valueType === 'ELEMENT') {
-                    request.post('element/list', {
-                        query: param,
-                        page: {
-                            pageIndex: 1,
-                            pageSize: 10
-                        }
-                    }).then(res => {
-                        for (let i = 0; i < res.data.length; i++) {
-                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
-                        }
-                        cb(data);
-                    });
-
-                }
+        async focusValue() {
+            if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
+                this.queryElement();
+            } else if (this.conditionForm.config.leftVariable.valueType === 'VARIABLE') {
+                this.queryVariable();
             }
+        },
+        remoteValue(value, valueDataType) {
+            if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
+                this.queryElement(value, valueDataType);
+            } else if (this.conditionForm.config.leftVariable.valueType === 'VARIABLE') {
+                this.queryVariable(value, valueDataType);
+            }
+        },
+        queryElement(name, valueDataType) {
+            var param = {};
+            if (name) {
+                param.name = queryString;
+            }
+            if (valueDataType) {
+                param.valueDataType = [valueDataType];
+            }
+            return request.post('element/list', {
+                query: param,
+                page: {
+                    pageIndex: 1,
+                    pageSize: 10
+                }
+            }).then(res => {
+                this.values = res.data;
+            });
+        },
+        queryVariable(name, valueDataType) {
+            var param = {};
+            if (name) {
+                param.name = queryString;
+            }
+
+            if (valueDataType) {
+                param.valueDataType = [valueDataType];
+            }
+            request.post('variable/list', {
+                query: param,
+                page: {
+                    pageIndex: 1,
+                    pageSize: 10
+                }
+            }).then(res => {
+                this.values = res.data;
+            });
         },
 
 

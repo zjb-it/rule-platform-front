@@ -29,7 +29,7 @@
                 <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
                 <el-table-column prop="name" label="名称"></el-table-column>
                 <el-table-column prop="code" label="code"></el-table-column>
-                <el-table-column prop="valueDataType" label="数据类型"></el-table-column>
+                <el-table-column prop="valueDataTypeDesc" label="数据类型"></el-table-column>
 
                 <el-table-column prop="description" label="描述" show-overflow-tooltip></el-table-column>
 

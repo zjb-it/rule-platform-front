@@ -28,7 +28,7 @@
             >
                 <af-table-column prop="id" label="ID" align="center"></af-table-column>
                 <af-table-column prop="name" label="名称"></af-table-column>
-                <el-table-column prop="valueDataType" label="数据类型"></el-table-column>
+                <el-table-column prop="valueDataTypeDesc" label="数据类型"></el-table-column>
 
                 <af-table-column prop="description" label="描述"></af-table-column>
                 <af-table-column
@@ -55,7 +55,7 @@
 
         <!-- 编辑弹出框 -->
         <el-dialog title="添加变量" :visible.sync="editVisible" width="30%" @close="closedDiaglog">
-            <el-form ref="form" :model="form" label-width="78px" :rules="rules">
+            <el-form ref="form" :model="form" label-width="100px" :rules="rules">
 
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="form.name"></el-input>
@@ -94,8 +94,8 @@
 
                 <el-form-item style=" margin-left: 15%" v-for="(item,i) in form.function.variables" prop="variables">
                     <span slot="label">
-                        <p style="color: #20a0ff;">{{ item.description }}</p>
-                        <p style="color: #20a0ff;">({{ item.valueDataType }})</p>
+                        <p style="color: #20a0ff; font-size: 10px">{{ item.description }}</p>
+                        <p style="color: #20a0ff; font-size: 10px">({{ item.valueDataType }})</p>
                     </span>
                     <!--如果是java对象，则只能使用变量-->
                     <div v-if="item.valueDataType==='POJO'" style="margin-top: 15px;">
@@ -120,7 +120,7 @@
                             :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,form.function.variables[i].valueType,item.valueDataType)})"
                             @select="((value)=>{handleSelect(value,i,form.function.variables[i].valueType)})"
                         >
-                            <el-select v-model="form.function.variables[i].valueType" slot="prepend" placeholder="请选择">
+                            <el-select v-model="form.function.variables[i].valueType" slot="prepend" placeholder="请选择" style="cursor: pointer">
                                 <el-option
                                     v-for="item in options"
                                     :key="item.value"
@@ -200,8 +200,6 @@ export default {
     name: 'basetable',
     data() {
         var validateConstant = (rule, value, callback) => {
-
-
             for (const variable of this.form.function.variables) {
                 if (variable.value === '') {
                     callback(new Error('不能为空'));

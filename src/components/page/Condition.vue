@@ -41,9 +41,9 @@
                     </el-form-item>
 
 
-                    <el-form-item label="左值" style=" margin-left: 5%" prop="leftVariable">
+                    <el-form-item label="左值" style=" margin-left: 5%; margin-bottom: 0px" prop="leftVariable">
 
-                        <div>
+                        <div style="display: flex">
                             <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
                                        placeholder="请选择" style="width: 28%;margin-right: 4%">
                                 <el-option
@@ -55,33 +55,9 @@
                                 </el-option>
                             </el-select>
 
-                            <el-input
-                                v-if="conditionForm.config.leftVariable.valueType!=='ELEMENT' && conditionForm.config.leftVariable.valueType!=='VARIABLE'"
-                                v-model="conditionForm.config.leftVariable.value" style="width: 68%"
-                                :disabled="conditionForm.config.leftVariable.valueType===''"
-
-                            ></el-input>
-                            <el-select
-                                v-else
-                                v-model="conditionForm.config.leftVariable.value"
-                                filterable
-                                remote
-                                clearable
-                                :disabled="conditionForm.config.leftVariable.valueType===''"
-                                reserve-keyword
-                                placeholder="请输入名称"
-                                @focus="focusValue"
-                                value-key="id"
-                                :remote-method="((queryString)=>{remoteValue(queryString,conditionForm.config.leftVariable.value)})"
-                                :loading="loading" style="width: 68%">
-                                <el-option
-                                    v-for="item in values"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item.id"
-                                >
-                                </el-option>
-                            </el-select>
+                            <ConditionLeft ref="conditionLeft" style="width: 68%"
+                                           v-bind:data="conditionForm.config.leftVariable"
+                                           v-bind:inputValueType="conditionForm.config.leftVariable.valueType"></ConditionLeft>
 
                         </div>
 
@@ -93,7 +69,7 @@
                         <div>
                             <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"
                                        :disabled="conditionForm.config.leftVariable.value===''"
-                                       @focus="(()=>{searchSymbol(conditionForm.config.leftVariable.valueType)})"
+                                       @focus="(()=>{searchSymbol(conditionForm.config.leftVariable.value)})"
                                        value-key="symbol"
                             >
                                 <el-option
@@ -108,8 +84,28 @@
                     </el-form-item>
 
 
-                    <el-form-item label="右值" style=" margin-left: 5%" prop="rightVariable">
-                        <ConditionLeft :data="conditionForm.rightVariable"></ConditionLeft>
+                    <el-form-item label="右值" style=" margin-left: 5%;margin-bottom: 0px" prop="rightVariable">
+                        <div style="display: flex">
+                            <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
+                                       placeholder="请选择" style="width: 28%;margin-right: 4%"
+                                       @focus="listRightValueDataType"
+                                       :disabled="conditionForm.config.symbol===''"
+                            >
+                                <el-option
+                                    v-for="item in rightValueDataTypes"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
+
+                            <ConditionLeft ref="conditionRight" style="width: 68%"
+                                           v-bind:data="conditionForm.config.rightVariable"
+                                           v-bind:inputValueType="conditionForm.config.rightVariable.valueType"></ConditionLeft>
+
+                        </div>
+
                     </el-form-item>
 
 
@@ -258,7 +254,7 @@ export default {
             ],
             idx: -1,
             id: -1,
-            conditionFormRules:{
+            conditionFormRules: {
                 name: [
                     { required: true, message: '请输入条件名称', trigger: 'blur' }
                 ]
@@ -274,7 +270,11 @@ export default {
             });
         },
         searchSymbol(leftValueDataType) {
-
+            if (leftValueDataType.valueDataType) {
+                leftValueDataType = leftValueDataType.valueDataType;
+            } else {
+                leftValueDataType = this.conditionForm.config.leftVariable.valueType;
+            }
             request.post('/symbol/get', { 'valueDataType': leftValueDataType }).then(res => {
                 this.symbols = res.data;
             });
@@ -344,6 +344,7 @@ export default {
 
 
         closedDiaglog() {
+            debugger
             this.$refs.conditionForm.resetFields();
         },
 
@@ -365,11 +366,57 @@ export default {
             this.addVisible = true;
         },
         // 保存编辑
-        addCondition() {
-            this.addVisible = false;
+       async addCondition() {
+            var param = JSON.parse(JSON.stringify(this.conditionForm));
+            param.config.symbol = this.conditionForm.config.symbol.symbol;
+            this.processValue(param.config.leftVariable);
+            this.processValue(param.config.rightVariable);
+            let validateForm = await this.$refs.conditionLeft.validateForm();
+            let validateForm1 =await this.$refs.conditionRight.validateForm();
+
+            if (validateForm && validateForm1) {
+                this.$refs.conditionForm.validate((valid) => {
+                    if (valid) {
+                        request.post('/condition/add', param).then(res => {
+                            this.addVisible = false;
+                            this.getData();
+                        });
+                    }
+                });
+            }
 
 
         },
+        processValue(value) {
+            // :{
+            //         "value":{
+            //             "id":14524,
+            //                 "name":"111",
+            //                 "valueDataType":"NUMBER",
+            //                 "valueDataTypeDesc":"数字",
+            //                 "functionName":"GetJsonPropertyFunction",
+            //                 "description":null
+            //         },
+            //         "valueDataType":"",
+            //             "valueName":"",
+            //             "valueType":"VARIABLE"
+            //     }
+            if (value.valueType === 'ELEMENT' || value.valueType === 'VARIABLE') {
+                value.valueDataType = value.value.valueDataType;
+                value.valueName = value.value.name;
+                value.value = value.value.id;
+            } else {
+                // {
+                //     "value":"1",
+                //     "valueDataType":"",
+                //     "valueName":"",
+                //     "valueType":"NUMBER"
+                // }
+                value.valueDataType = value.valueType;
+                value.valueType = 'CONSTANT';
+            }
+        },
+
         // 分页导航
         handlePageChange(val) {
             this.$set(this.query.page, 'pageIndex', val);

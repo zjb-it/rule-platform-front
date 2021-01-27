@@ -1,53 +1,37 @@
 <template>
 
 
-    <el-form ref="conditionForm" :model="aaa" label-width="70px" :rules="conditionFormRules">
+    <el-form ref="valueForm" :model="valueForm" :rules="valueRule">
+        <el-form-item prop="value">
+            <el-input
+                v-if="valueType!=='ELEMENT' && valueType!=='VARIABLE'"
+                v-model="valueForm.value"
+                :disabled="valueForm.valueType===''"
+            ></el-input>
 
-
-                                        <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
-                                                   placeholder="请选择" style="width: 28%;margin-right: 4%"
-                                                   @focus="listRightValueDataType"
-                                                   :disabled="conditionForm.config.symbol===''"
-                                        >
-                                            <el-option
-                                                v-for="item in rightValueDataTypes"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value"
-                                            >
-                                            </el-option>
-                                        </el-select>
-
-                                        <el-input
-                                            v-if="conditionForm.config.rightVariable.valueType!=='ELEMENT' && conditionForm.config.rightVariable.valueType!=='VARIABLE'"
-                                            v-model="conditionForm.config.rightVariable.value" style="width: 68%"
-                                            :disabled="conditionForm.config.rightVariable.valueType===''"
-                                        ></el-input>
-
-                                        <el-select
-                                            v-else
-                                            v-model="conditionForm.config.rightVariable.value"
-                                            filterable
-                                            remote
-                                            clearable
-                                            :disabled="conditionForm.config.rightVariable.valueType===''"
-                                            reserve-keyword
-                                            placeholder="请输入名称"
-                                            @focus="focusValue"
-                                            value-key="id"
-                                            :remote-method="((queryString)=>{remoteValue(queryString,conditionForm.config.rightVariable.value)})"
-                                            :loading="loading" style="width: 68%">
-                                            <el-option
-                                                v-for="item in values"
-                                                :key="item.id"
-                                                :label="item.name"
-                                                :value="item.id"
-                                            >
-                                            </el-option>
-                                        </el-select>
-
+            <el-select
+                v-else
+                v-model="valueForm.value"
+                filterable
+                remote
+                clearable
+                :disabled="valueForm.valueType===''"
+                reserve-keyword
+                placeholder="请输入名称"
+                @focus="focusValue"
+                value-key="id"
+                :remote-method="((queryString)=>{remoteValue(queryString,valueForm.value)})"
+                :loading="loading">
+                <el-option
+                    v-for="item in values"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item"
+                >
+                </el-option>
+            </el-select>
+        </el-form-item>
     </el-form>
-
 
 </template>
 
@@ -58,35 +42,40 @@ import request from '@/utils/request';
 export default {
     props: {
         data: {
-            require: true,
+            require: true
+        },
+        inputValueType: {
+            require: true
         }
     },
 
     data() {
+        var validateConstant = (rule, value, callback,valueType) => {
+            if (valueType === 'BOOLEAN') {
+                if (value !== 'true' && value !== 'false') {
+                    callback(new Error('布尔类型只能是true或false'));
+                }
+            } else if (valueType === 'NUMBER') {
+                if (isNaN(Number(value))) {
+                    callback(new Error('不是数字类型'));
+                }
+            }else if (valueType === 'COLLECTION') {
+                if (!Array.isArray(JSON.parse(value))) {
+                    callback(new Error('不是数组类型，数组类型格式为[1,2,3]'));
+                }
+            } else if (valueType === 'JSONOBJECT') {
+                if (typeof JSON.parse(value) !== 'object' || Array.isArray(JSON.parse(value))) {
+                    callback(new Error('不是JSON类型，json类型为{...}'));
+                }
+            } else {
+                callback();
+            }
+        };
         return {
-            leftValue: {},
+            valueForm: this.data,
+            valueType: this.inputValueType,
             loading: false,
-            symbols: [],
-            leftValueDataType: '',
-            conditionForm: {
-                config: {
-                    leftVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    rightVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    symbol: ''
-                },
-                description: '',
-                name: ''
-            },
+
             valueDataTypes: [
                 {
                     value: 'COLLECTION',
@@ -146,35 +135,51 @@ export default {
                     value: 'VARIABLE',
                     label: '变量'
                 }
-            ]
+            ],
+            valueRule: {
+                value: [
+                    { required: true, message: '不能为空', trigger: 'blur' },
+                    {
+                        validator: (rule, value, callback) => {
+                            validateConstant(rule, value, callback, this.valueType)
+                        },
+                        trigger: 'blur'
+                    }
+                ]
+            }
         };
     },
-    methods: {
-
-
-
-        listRightValueDataType() {
-            this.$data.rightValueDataTypes = this.$options.data().rightValueDataTypes;
-            for (const valueDataType of this.conditionForm.config.symbol.valueDataTypes) {
-                for (const option of this.options) {
-                    if (option.value === valueDataType) {
-                        this.rightValueDataTypes.push(option);
-                    }
-                }
-            }
+    watch: {
+        inputValueType: function(newValue, oldValue) {
+            this.valueType = newValue;
+            console.log(this.valueType)
         },
+        data: function(newValue, oldValue) {
+            this.valueForm = newValue;
+        }
+    },
+    methods: {
+        validateForm () {
+            let flag = null
+            this.$refs.valueForm.validate(valid => {
+                flag = valid
+                return flag;
 
+            })
+            return flag
+        },
         async focusValue() {
-            if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
+            if (this.valueForm.valueType === 'ELEMENT') {
                 this.queryElement();
-            } else if (this.conditionForm.config.leftVariable.valueType === 'VARIABLE') {
+            } else if (this.valueForm.valueType === 'VARIABLE') {
                 this.queryVariable();
             }
         },
         remoteValue(value, valueDataType) {
-            if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
+            if (this.valueForm.valueType === 'ELEMENT') {
                 this.queryElement(value, valueDataType);
-            } else if (this.conditionForm.config.leftVariable.valueType === 'VARIABLE') {
+
+            } else if (this.valueForm.valueType === 'VARIABLE') {
                 this.queryVariable(value, valueDataType);
             }
         },
@@ -194,6 +199,7 @@ export default {
                 }
             }).then(res => {
                 this.values = res.data;
+                console.log(this.values);
             });
         },
         queryVariable(name, valueDataType) {
@@ -214,12 +220,10 @@ export default {
             }).then(res => {
                 this.values = res.data;
             });
-        },
+        }
 
-    },
-    created() {
-        this.leftValue = this.data
     }
+
 
 };
 </script>

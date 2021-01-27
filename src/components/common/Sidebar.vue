@@ -28,13 +28,15 @@
                                     v-for="(threeItem,i) in subItem.subs"
                                     :key="i"
                                     :index="threeItem.index"
-                                >{{ threeItem.title }}</el-menu-item>
+                                >{{ threeItem.title }}
+                                </el-menu-item>
                             </el-submenu>
                             <el-menu-item
                                 v-else
                                 :index="subItem.index"
                                 :key="subItem.index"
-                            >{{ subItem.title }}</el-menu-item>
+                            >{{ subItem.title }}
+                            </el-menu-item>
                         </template>
                     </el-submenu>
                 </template>
@@ -51,6 +53,7 @@
 
 <script>
 import bus from '../common/bus';
+
 export default {
     data() {
         return {
@@ -77,6 +80,10 @@ export default {
                         {
                             index: 'condition',
                             title: '条件'
+                        },
+                        {
+                            index: 'function',
+                            title: '函数'
                         },
                         {
                             index: '404',
@@ -201,12 +208,15 @@ export default {
     bottom: 0;
     overflow-y: scroll;
 }
+
 .sidebar::-webkit-scrollbar {
     width: 0;
 }
+
 .sidebar-el-menu:not(.el-menu--collapse) {
     width: 250px;
 }
+
 .sidebar > ul {
     height: 100%;
 }

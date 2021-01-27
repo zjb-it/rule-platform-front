@@ -28,98 +28,100 @@
             >
                 <af-table-column prop="id" label="ID" align="center"></af-table-column>
                 <af-table-column prop="name" label="名称"></af-table-column>
-                <af-table-column prop="config" label="配置"></af-table-column>
+                <af-table-column prop="description" label="描述"></af-table-column>
+                <af-table-column prop="params" label="参数" show-overflow-tooltip
+                                 :formatter="formatterParams"></af-table-column>
 
             </el-table>
 
 
-            <el-dialog title="添加条件" :visible.sync="addVisible" width="30%" @close="closedDiaglog">
-                <el-form ref="conditionForm" :model="conditionForm" label-width="70px" :rules="conditionFormRules">
+            <!--            <el-dialog title="添加条件" :visible.sync="addVisible" width="30%" @close="closedDiaglog">-->
+            <!--                <el-form ref="conditionForm" :model="conditionForm" label-width="70px" :rules="conditionFormRules">-->
 
-                    <el-form-item label="名称" prop="name">
-                        <el-input v-model="conditionForm.name"></el-input>
-                    </el-form-item>
-
-
-                    <el-form-item label="左值" style=" margin-left: 5%; margin-bottom: 0px" prop="config.leftVariable.valueType">
-
-                        <div style="display: flex">
-                            <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
-                                       placeholder="请选择" style="width: 28%;margin-right: 4%">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                >
-                                </el-option>
-                            </el-select>
-
-                            <ConditionLeft ref="conditionLeft" style="width: 68%"
-                                           v-bind:data="conditionForm.config.leftVariable"
-                                           v-bind:inputValueType="conditionForm.config.leftVariable.valueType"></ConditionLeft>
-
-                        </div>
-
-                    </el-form-item>
+            <!--                    <el-form-item label="名称" prop="name">-->
+            <!--                        <el-input v-model="conditionForm.name"></el-input>-->
+            <!--                    </el-form-item>-->
 
 
-                    <el-form-item label="符号" style=" margin-left: 5%" prop="config.symbol">
+            <!--                    <el-form-item label="左值" style=" margin-left: 5%; margin-bottom: 0px" prop="config.leftVariable.valueType">-->
 
-                        <div>
-                            <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"
-                                       :disabled="conditionForm.config.leftVariable.value===''"
-                                       @focus="(()=>{searchSymbol(conditionForm.config.leftVariable.value)})"
-                                       value-key="symbol"
-                            >
-                                <el-option
-                                    v-for="item in symbols"
-                                    :key="item.symbol"
-                                    :label="item.symbol"
-                                    :value="item"
-                                >
-                                </el-option>
-                            </el-select>
-                        </div>
-                    </el-form-item>
+            <!--                        <div style="display: flex">-->
+            <!--                            <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"-->
+            <!--                                       placeholder="请选择" style="width: 28%;margin-right: 4%">-->
+            <!--                                <el-option-->
+            <!--                                    v-for="item in options"-->
+            <!--                                    :key="item.value"-->
+            <!--                                    :label="item.label"-->
+            <!--                                    :value="item.value"-->
+            <!--                                >-->
+            <!--                                </el-option>-->
+            <!--                            </el-select>-->
 
+            <!--                            <ConditionLeft ref="conditionLeft" style="width: 68%"-->
+            <!--                                           v-bind:data="conditionForm.config.leftVariable"-->
+            <!--                                           v-bind:inputValueType="conditionForm.config.leftVariable.valueType"></ConditionLeft>-->
 
-                    <el-form-item label="右值" style=" margin-left: 5%;margin-bottom: 0px" prop="config.rightVariable.valueType">
-                        <div style="display: flex">
-                            <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"
-                                       placeholder="请选择" style="width: 28%;margin-right: 4%"
-                                       @focus="listRightValueDataType"
-                                       :disabled="conditionForm.config.symbol===''"
-                            >
-                                <el-option
-                                    v-for="item in rightValueDataTypes"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                >
-                                </el-option>
-                            </el-select>
+            <!--                        </div>-->
 
-                            <ConditionLeft ref="conditionRight" style="width: 68%"
-                                           v-bind:data="conditionForm.config.rightVariable"
-                                           v-bind:inputValueType="conditionForm.config.rightVariable.valueType"></ConditionLeft>
-
-                        </div>
-
-                    </el-form-item>
+            <!--                    </el-form-item>-->
 
 
-                    <el-form-item label="描述" prop="description">
-                        <el-input type="textarea" v-model="conditionForm.description"></el-input>
-                    </el-form-item>
+            <!--                    <el-form-item label="符号" style=" margin-left: 5%" prop="config.symbol">-->
 
-                    <el-form-item size="large">
-                        <el-button type="primary" @click="addCondition()">立即创建</el-button>
-                        <el-button @click="addVisible=false">取消</el-button>
-                    </el-form-item>
-                </el-form>
+            <!--                        <div>-->
+            <!--                            <el-select v-model="conditionForm.config.symbol" slot="prepend" style="width:28%"-->
+            <!--                                       :disabled="conditionForm.config.leftVariable.value===''"-->
+            <!--                                       @focus="(()=>{searchSymbol(conditionForm.config.leftVariable.value)})"-->
+            <!--                                       value-key="symbol"-->
+            <!--                            >-->
+            <!--                                <el-option-->
+            <!--                                    v-for="item in symbols"-->
+            <!--                                    :key="item.symbol"-->
+            <!--                                    :label="item.symbol"-->
+            <!--                                    :value="item"-->
+            <!--                                >-->
+            <!--                                </el-option>-->
+            <!--                            </el-select>-->
+            <!--                        </div>-->
+            <!--                    </el-form-item>-->
 
-            </el-dialog>
+
+            <!--                    <el-form-item label="右值" style=" margin-left: 5%;margin-bottom: 0px" prop="config.rightVariable.valueType">-->
+            <!--                        <div style="display: flex">-->
+            <!--                            <el-select v-model="conditionForm.config.rightVariable.valueType" slot="prepend"-->
+            <!--                                       placeholder="请选择" style="width: 28%;margin-right: 4%"-->
+            <!--                                       @focus="listRightValueDataType"-->
+            <!--                                       :disabled="conditionForm.config.symbol===''"-->
+            <!--                            >-->
+            <!--                                <el-option-->
+            <!--                                    v-for="item in rightValueDataTypes"-->
+            <!--                                    :key="item.value"-->
+            <!--                                    :label="item.label"-->
+            <!--                                    :value="item.value"-->
+            <!--                                >-->
+            <!--                                </el-option>-->
+            <!--                            </el-select>-->
+
+            <!--                            <ConditionLeft ref="conditionRight" style="width: 68%"-->
+            <!--                                           v-bind:data="conditionForm.config.rightVariable"-->
+            <!--                                           v-bind:inputValueType="conditionForm.config.rightVariable.valueType"></ConditionLeft>-->
+
+            <!--                        </div>-->
+
+            <!--                    </el-form-item>-->
+
+
+            <!--                    <el-form-item label="描述" prop="description">-->
+            <!--                        <el-input type="textarea" v-model="conditionForm.description"></el-input>-->
+            <!--                    </el-form-item>-->
+
+            <!--                    <el-form-item size="large">-->
+            <!--                        <el-button type="primary" @click="addCondition()">立即创建</el-button>-->
+            <!--                        <el-button @click="addVisible=false">取消</el-button>-->
+            <!--                    </el-form-item>-->
+            <!--                </el-form>-->
+
+            <!--            </el-dialog>-->
 
 
             <div class="pagination">
@@ -142,17 +144,9 @@
 import request from '@/utils/request';
 import ConditionLeft from '@/components/page/ConditionLeft';
 
-export const listConditions = query => {
-    return request({
-        url: 'condition/list',
-        method: 'post',
-        data: query
-    });
-};
-
 
 export default {
-    name: 'conditionTable',
+    name: 'funcTable',
     components: {
         ConditionLeft
     },
@@ -173,25 +167,7 @@ export default {
             addVisible: false,
             pageTotal: 0,
             leftValueDataType: '',
-            conditionForm: {
-                config: {
-                    leftVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    rightVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    symbol: ''
-                },
-                description: '',
-                name: ''
-            },
+
             valueDataTypes: [
                 {
                     value: 'COLLECTION',
@@ -264,39 +240,20 @@ export default {
     methods: {
 
         getData() {
-            listConditions(this.query).then(res => {
+            request.post('/function/page', this.query).then(res => {
                 this.tableData = res.data;
                 this.pageTotal = res.total || 10;
             });
         },
-        searchSymbol(leftValueDataType) {
-            if (leftValueDataType.valueDataType) {
-                leftValueDataType = leftValueDataType.valueDataType;
-            } else {
-                leftValueDataType = this.conditionForm.config.leftVariable.valueType;
+
+        formatterParams(row, column, cellValue, index) {
+            var result = [];
+            for (const cellValueElement of cellValue) {
+                result.push(cellValueElement.name+"("+cellValueElement.code+")")
             }
-            request.post('/symbol/get', { 'valueDataType': leftValueDataType }).then(res => {
-                this.symbols = res.data;
-            });
-        },
-        listRightValueDataType() {
-            this.$data.rightValueDataTypes = this.$options.data().rightValueDataTypes;
-            for (const valueDataType of this.conditionForm.config.symbol.valueDataTypes) {
-                for (const option of this.options) {
-                    if (option.value === valueDataType) {
-                        this.rightValueDataTypes.push(option);
-                    }
-                }
-            }
+            return result.join(',');
         },
 
-        async focusValue() {
-            if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
-                this.queryElement();
-            } else if (this.conditionForm.config.leftVariable.valueType === 'VARIABLE') {
-                this.queryVariable();
-            }
-        },
         remoteValue(value, valueDataType) {
             if (this.conditionForm.config.leftVariable.valueType === 'ELEMENT') {
                 this.queryElement(value, valueDataType);
@@ -367,13 +324,13 @@ export default {
             this.addVisible = true;
         },
         // 保存编辑
-       async addCondition() {
+        async addCondition() {
             var param = JSON.parse(JSON.stringify(this.conditionForm));
             param.config.symbol = this.conditionForm.config.symbol.symbol;
             this.processValue(param.config.leftVariable);
             this.processValue(param.config.rightVariable);
             let validateForm = await this.$refs.conditionLeft.validateForm();
-            let validateForm1 =await this.$refs.conditionRight.validateForm();
+            let validateForm1 = await this.$refs.conditionRight.validateForm();
 
             if (validateForm && validateForm1) {
                 this.$refs.conditionForm.validate((valid) => {

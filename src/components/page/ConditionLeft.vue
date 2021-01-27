@@ -10,6 +10,7 @@
             ></el-input>
 
             <el-select
+                style="width: 100%"
                 v-else
                 v-model="valueForm.value"
                 filterable
@@ -159,6 +160,10 @@ export default {
         }
     },
     methods: {
+        reset() {
+            this.$refs.valueForm.resetFields();
+        },
+
         validateForm () {
             let flag = null
             this.$refs.valueForm.validate(valid => {

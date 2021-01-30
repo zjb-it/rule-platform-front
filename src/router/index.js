@@ -41,17 +41,17 @@ export default new Router({
                 },
                 {
                     path: '/element',
-                    component: () => import(/* webpackChunkName: "form" */ '../components/page/Element.vue'),
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/base/Element.vue'),
                     meta: { title: '元素' }
                 },
                 {
                     path: '/condition',
-                    component: () => import(/* webpackChunkName: "form" */ '../components/page/Condition.vue'),
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/base/Condition.vue'),
                     meta: { title: '条件' }
                 },
                 {
                     path: '/variable',
-                    component: () => import(/* webpackChunkName: "form" */ '../components/page/Variable.vue'),
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/base/Variable.vue'),
                     meta: { title: '变量' }
                 },
                 {
@@ -62,7 +62,7 @@ export default new Router({
                 }, {
                     // 富文本编辑器组件
                     path: '/function',
-                    component: () => import(/* webpackChunkName: "editor" */ '../components/page/Function.vue'),
+                    component: () => import(/* webpackChunkName: "editor" */ '../components/page/base/Function.vue'),
                     meta: { title: '函数' }
                 },
                 {

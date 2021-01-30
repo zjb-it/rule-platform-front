@@ -140,7 +140,7 @@
 
 <script>
 import request from '@/utils/request';
-import ConditionLeft from '@/components/page/ConditionLeft';
+import ConditionLeft from '@/components/page/base/ConditionLeft';
 
 export const listConditions = query => {
     return request({

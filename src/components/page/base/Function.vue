@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i>条件
+                    <i class="el-icon-lx-cascades"></i>函数<span style="color: red">(暂时只支持POST & Content-Type=application/json)</span>
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -35,17 +35,19 @@
                 <af-table-column
                     fixed="right"
                     label="操作"
-                    width="100">
+                    width="140">
                     <template slot-scope="scope">
                         <el-button @click="del(scope.row)" type="text" size="small">删除</el-button>
                         <el-button @click="updateFunction(scope.row)" type="text" size="small">更新</el-button>
+                        <el-button @click="tryRequest(scope.row)" type="text" size="small">试一下</el-button>
                     </template>
                 </af-table-column>
 
             </el-table>
 
 
-            <el-dialog :title="dialogTitle" :visible.sync="addVisible" v-if="addVisible" width="35%" @close="closedDiaglog">
+            <el-dialog :title="dialogTitle" :visible.sync="addVisible" v-if="addVisible" width="35%"
+                       @close="closedDiaglog">
                 <el-form ref="functionForm" :model="functionForm" label-width="80px" :rules="functionFormRules">
 
                     <el-form-item label="code" prop="code">
@@ -94,6 +96,45 @@
 
             </el-dialog>
 
+            <el-dialog title="试一下" :visible.sync="tryVisible" v-if="tryVisible" width="35%" show-close>
+                <el-form ref="functionForm" :model="functionForm" label-width="80px">
+
+                    <el-form-item label="code" prop="code">
+                        <el-input v-model="functionForm.code" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="名称" prop="name">
+                        <el-input v-model="functionForm.name" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="接口地址" prop="url">
+                        <el-input v-model="functionForm.url" disabled></el-input>
+                    </el-form-item>
+
+
+                    <el-form-item
+                        style="margin-left: 5%;background-color: #F5F5F5"
+                        v-for="(domain, index) in functionForm.params"
+                        :label="domain.name+'(' + (domain.code)+')'"
+                        :key="index"
+                        :prop="'params.' + index"
+                    >
+                        <el-input v-model="domain.value"></el-input>
+
+                    </el-form-item>
+<!--                    <el-form-item label="命令" prop="description" v-if="curlShow">-->
+<!--                        <el-input type="textarea" disabled :value="curlDetail"></el-input>-->
+<!--                    </el-form-item>-->
+                    <el-form-item label="结果" prop="description">
+                        <el-input type="textarea" v-model="functionResult" disabled></el-input>
+                    </el-form-item>
+
+                    <el-form-item size="large">
+                        <el-button type="primary" @click="sendRequest">试一下</el-button>
+                        <el-button @click="tryVisible=false">取消</el-button>
+                    </el-form-item>
+                </el-form>
+
+            </el-dialog>
+
 
             <div class="pagination">
                 <el-pagination
@@ -131,6 +172,9 @@ export default {
                 }
 
             },
+            functionResult:'',
+            tryVisible: false,
+            curlDetail: '',
             dialogTitle: '增加函数',
             loading: false,
             tableData: [],
@@ -142,7 +186,8 @@ export default {
                 valueDataType: '',
                 id: '',
                 name: '',
-                url:'',
+                url: '',
+                result:'',
                 params: [
                     {
                         code: '',
@@ -200,14 +245,38 @@ export default {
     },
     methods: {
         del(row) {
-            request.get("/function/delete?id="+row.id).then(res=>{
-                this.getData()
+            request.get('/function/delete?id=' + row.id).then(res => {
+                this.getData();
+            });
+        },
+        tryRequest(fun) {
+            this.functionResult='';
+            this.functionForm = fun;
+            this.tryVisible = true;
+            // this.curlDetail=''
+            // this.curlDetail += 'curl -H "Content-Type: application/json" -X POST  --data' + '{';
+            // for (const param of fun.params) {
+            //     this.curlDetail+='"'+param.code+'":"'+param.value+'"'
+            // }
+            // this.curlDetail += '}'
+            // this.curlDetail += fun.url
+
+        },
+        sendRequest() {
+            var param={}
+            for (const argument of this.functionForm.params) {
+                param[argument.code] = argument.value;
+            }
+            request.post(this.functionForm.url,JSON.stringify(param)).then(res=>{
+                this.functionResult=JSON.stringify(res)
+                console.log(this.functionForm)
             })
+
         },
         updateFunction(fun) {
-            this.dialogTitle='更新函数'
-            this.functionForm=fun
-            this.addVisible=true
+            this.dialogTitle = '更新函数';
+            this.functionForm = fun;
+            this.addVisible = true;
         },
         getData() {
             request.post('/function/page', this.query).then(res => {
@@ -225,15 +294,13 @@ export default {
         },
 
 
-
-
         closedDiaglog() {
-            this.$set(this.functionForm.params, 'length',1)
+            this.$set(this.functionForm.params, 'length', 1);
             for (const argument of this.$refs.functionParam) {
 
                 argument.reset();
             }
-            this.addVisible=false
+            this.addVisible = false;
 
         },
 
@@ -250,10 +317,10 @@ export default {
         },
         // 保存编辑
         async addFunction() {
-            var validateResult=await this.$refs.functionForm.validate();
+            var validateResult = await this.$refs.functionForm.validate();
             for (const argument of this.$refs.functionParam) {
                 let validateForm = await argument.validateForm();
-                validateResult=validateForm && validateForm
+                validateResult = validateForm && validateForm;
             }
             if (validateResult) {
                 if (this.functionForm.id !== '') {
@@ -261,7 +328,7 @@ export default {
                         this.addVisible = false;
                         this.getData();
                     });
-                }else{
+                } else {
                     request.post('/function/register', this.functionForm).then(res => {
                         this.addVisible = false;
                         this.getData();

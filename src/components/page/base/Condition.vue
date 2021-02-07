@@ -41,7 +41,7 @@
                     </el-form-item>
 
 
-                    <el-form-item label="左值" style=" margin-left: 5%; margin-bottom: 0px" prop="config.leftVariable.valueType">
+                    <el-form-item label="左值" style=" margin-left: 5%; margin-bottom: 0px" prop="config.rightVariable.valueType">
 
                         <div style="display: flex">
                             <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
@@ -157,6 +157,25 @@ export default {
         ConditionLeft
     },
     data() {
+        let defaultForm= {
+            config: {
+                leftVariable: {
+                    value: '',
+                    valueDataType: '',
+                    valueName: '',
+                    valueType: ''
+                },
+                rightVariable: {
+                    value: '',
+                    valueDataType: '',
+                    valueName: '',
+                    valueType: ''
+                },
+                symbol: ''
+            },
+            description: '',
+            name: ''
+        }
         return {
             query: {
                 'query': '',
@@ -173,25 +192,7 @@ export default {
             addVisible: false,
             pageTotal: 0,
             leftValueDataType: '',
-            conditionForm: {
-                config: {
-                    leftVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    rightVariable: {
-                        value: '',
-                        valueDataType: '',
-                        valueName: '',
-                        valueType: ''
-                    },
-                    symbol: ''
-                },
-                description: '',
-                name: ''
-            },
+            conditionForm: defaultForm,
             valueDataTypes: [
                 {
                     value: 'COLLECTION',
@@ -365,6 +366,25 @@ export default {
         // 编辑操作
         handleAdd() {
             this.addVisible = true;
+            this.conditionForm= {
+                config: {
+                    leftVariable: {
+                        value: '',
+                        valueDataType: '',
+                        valueName: '',
+                        valueType: ''
+                    },
+                    rightVariable: {
+                        value: '',
+                        valueDataType: '',
+                        valueName: '',
+                        valueType: ''
+                    },
+                    symbol: ''
+                },
+                description: '',
+                name: ''
+            }
         },
         // 保存编辑
        async addCondition() {

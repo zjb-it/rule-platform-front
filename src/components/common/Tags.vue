@@ -31,6 +31,9 @@
             }
         },
         methods: {
+            ignoreTag(route){
+                return route.path === '/createRule' || route.path === '/ConfigRule';
+            },
             isActive(path) {
                 return path === this.$route.fullPath;
             },
@@ -84,10 +87,18 @@
         },
         watch:{
             $route(newValue, oldValue){
+                if (this.ignoreTag(newValue)) {
+                    return
+                }
                 this.setTags(newValue);
             }
         },
+
+
         created(){
+            if (this.ignoreTag(this.$route)) {
+                return
+            }
             this.setTags(this.$route);
             // 监听关闭当前页面的标签页
             bus.$on('close_current_tags', () => {

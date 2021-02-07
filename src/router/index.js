@@ -113,6 +113,28 @@ export default new Router({
                     meta: { title: '404' }
                 },
                 {
+                    path: '/rule',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/rule.vue'),
+                    meta: { title: '规则' }
+                },
+                {
+                    path: '/createRule',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/CreateRule.vue'),
+                    meta: { title: '创建规则' }
+                },
+                {
+                    path: '/ConfigRule',
+                    name:'ConfigRule',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/ConfigRule.vue'),
+                    meta: { title: '配置规则' }
+                },
+                {
+                    path: '/PreviewRule',
+                    name:'PreviewRule',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/PreviewRule.vue'),
+                    meta: { title: '预览规则' }
+                },
+                {
                     path: '/403',
                     component: () => import(/* webpackChunkName: "403" */ '../components/page/403.vue'),
                     meta: { title: '403' }

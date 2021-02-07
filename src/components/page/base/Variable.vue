@@ -199,7 +199,7 @@ export const variables = query => {
 export default {
     name: 'basetable',
     data() {
-        var validateConstant = (rule, value, callback) => {
+        let validateConstant = (rule, value, callback) => {
             for (const variable of this.form.function.variables) {
                 if (variable.value === '') {
                     callback(new Error('不能为空'));

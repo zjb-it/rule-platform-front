@@ -65,7 +65,7 @@ export default {
                     title: '系统首页'
                 },
                 {
-                    icon: 'el-icon-lx-warn',
+                    icon: 'el-icon-lx-cascades',
                     index: '8',
                     title: '基础组件',
                     subs: [
@@ -83,12 +83,24 @@ export default {
                         },
                         {
                             index: 'function',
-                            title: '函数'
+                            title: 'http函数'
                         },
                         {
                             index: '404',
                             title: '404页面'
                         }
+                    ]
+                },
+                {
+                    icon: 'el-icon-lx-cascades',
+                    index: '9',
+                    title: '规则',
+                    subs: [
+                        {
+                            index: 'rule',
+                            title: '规则'
+                        }
+
                     ]
                 },
                 {

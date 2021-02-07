@@ -96,7 +96,7 @@
 
             </el-dialog>
 
-            <el-dialog title="试一下" :visible.sync="tryVisible" v-if="tryVisible" width="35%" show-close>
+            <el-dialog title="试一下" :visible.sync="tryVisible" v-if="tryVisible" width="35%" show-close @close="closedDiaglog">
                 <el-form ref="functionForm" :model="functionForm" label-width="80px">
 
                     <el-form-item label="code" prop="code">
@@ -129,7 +129,7 @@
 
                     <el-form-item size="large">
                         <el-button type="primary" @click="sendRequest">试一下</el-button>
-                        <el-button @click="tryVisible=false">取消</el-button>
+                        <el-button @click="closedDiaglog">取消</el-button>
                     </el-form-item>
                 </el-form>
 
@@ -155,6 +155,7 @@
 <script>
 import request from '@/utils/request';
 import FunctionParam from '@/components/page/base/FunctionParam';
+import axios from 'axios';
 
 
 export default {
@@ -267,7 +268,7 @@ export default {
             for (const argument of this.functionForm.params) {
                 param[argument.code] = argument.value;
             }
-            request.post(this.functionForm.url,JSON.stringify(param)).then(res=>{
+            axios.post(this.functionForm.url,JSON.stringify(param)).then(res=>{
                 this.functionResult=JSON.stringify(res)
                 console.log(this.functionForm)
             })
@@ -295,12 +296,10 @@ export default {
 
 
         closedDiaglog() {
-            this.$set(this.functionForm.params, 'length', 1);
-            for (const argument of this.$refs.functionParam) {
 
-                argument.reset();
-            }
             this.addVisible = false;
+
+            this.functionForm={};
 
         },
 
@@ -313,6 +312,7 @@ export default {
 
         // 编辑操作
         handleAdd() {
+            this.functionForm={};
             this.addVisible = true;
         },
         // 保存编辑

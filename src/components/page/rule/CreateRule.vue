@@ -59,8 +59,10 @@ export default {
     },
     created() {
         if (localStorage.getItem('rule')){
-
-            this.form=JSON.parse(localStorage.getItem('rule'))
+            let item = localStorage.getItem('rule');
+            if (typeof JSON.parse(item) === 'object' ){
+                this.form=JSON.parse(localStorage.getItem('rule'))
+            }
         }
 
 

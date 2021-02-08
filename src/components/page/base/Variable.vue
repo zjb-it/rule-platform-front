@@ -120,7 +120,10 @@
                             :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,form.function.variables[i].valueType,item.valueDataType)})"
                             @select="((value)=>{handleSelect(value,i,form.function.variables[i].valueType)})"
                         >
-                            <el-select v-model="form.function.variables[i].valueType" slot="prepend" placeholder="请选择" style="cursor: pointer">
+                            <el-select v-model="form.function.variables[i].valueType"
+                                       slot="prepend"
+                                       placeholder="请选择"
+                                       @focus="((event)=>{getOptions(event,item.valueDataType)})">
                                 <el-option
                                     v-for="item in options"
                                     :key="item.value"
@@ -207,7 +210,7 @@ export default {
                 }
                 if (variable.valueType === 'CONSTANT') {
                     if (variable.valueDataType === 'BOOLEAN') {
-                        if (variable.value!=='true' && variable.value!=='false') {
+                        if (variable.value !== 'true' && variable.value !== 'false') {
                             callback(new Error('布尔类型只能是true或false'));
                         }
                     } else if (variable.valueDataType === 'COLLECTION') {
@@ -215,7 +218,7 @@ export default {
                             callback(new Error('不是数组类型，数组类型格式为[1,2,3]'));
                         }
                     } else if (variable.valueDataType === 'JSONOBJECT') {
-                        if (typeof JSON.parse(variable.value)!=='object' || Array.isArray(JSON.parse(variable.value))) {
+                        if (typeof JSON.parse(variable.value) !== 'object' || Array.isArray(JSON.parse(variable.value))) {
                             callback(new Error('不是JSON类型，json类型为{...}'));
                         }
                     } else {
@@ -282,10 +285,6 @@ export default {
                 {
                     value: 'VARIABLE',
                     label: '变量'
-                },
-                {
-                    value: 'CONSTANT',
-                    label: '固定值'
                 }
             ],
             idx: -1,
@@ -311,6 +310,29 @@ export default {
 
     },
     methods: {
+        getOptions(event, valueDataType) {
+            this.options=[
+                {
+                    value: 'ELEMENT',
+                    label: '元素'
+                },
+                {
+                    value: 'VARIABLE',
+                    label: '变量'
+                }
+            ];
+            for (const valueDataType1 of this.valueDataTypes) {
+                if (valueDataType1.value === valueDataType) {
+                    this.options.push(valueDataType1)
+                    return
+                }
+            }
+
+        },
+
+
+
+
         querySearchAsync(queryString, cb, valueType, valueDataType) {
             if (valueType !== 'CONSTANT' && queryString && queryString !== '' && cb) {
                 var data = [];

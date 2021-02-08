@@ -287,11 +287,14 @@ export default {
         },
 
         formatterParams(row, column, cellValue, index) {
-            var result = [];
-            for (const cellValueElement of cellValue) {
-                result.push(cellValueElement.name + '(' + cellValueElement.code + ')');
+            if (cellValue) {
+                var result = [];
+                for (const cellValueElement of cellValue) {
+                    result.push(cellValueElement.name + '(' + cellValueElement.code + ')');
+                }
+                return result.join(',');
             }
-            return result.join(',');
+
         },
 
 

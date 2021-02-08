@@ -174,6 +174,9 @@ export default {
                 if (valid) {
                     request.post("/element/add",this.form).then(res=>{
                         this.getData();
+                        this.form={
+                            valueDataType: 'NUMBER',
+                        }
                         this.editVisible = false;
                     })
                 }

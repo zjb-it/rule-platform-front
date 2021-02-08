@@ -9,8 +9,6 @@
         </el-steps>
 
         <el-form ref="form" :model="form" label-width="15%" :rules="rules">
-
-
             <el-form-item
                 style="margin-top: 30px"
                 v-for="(domain, index) in form.conditionGroups"
@@ -29,6 +27,7 @@
                     reserve-keyword
                     value-key="id"
                     placeholder="请输入条件名称关键词"
+                    @focus="queryConditions('')"
                     :remote-method="queryConditions"
 
                     :loading="false">
@@ -105,7 +104,7 @@
                 </el-row>
                 <el-form-item size="large" style="margin-top: 1%">
                     <el-button type="primary" @click="saveAndPreview">保存下一步</el-button>
-                    <el-button type="warning" @click="toCreate">上一步</el-button>
+                    <!--                    <el-button type="warning" @click="toCreate">上一步</el-button>-->
                     <el-button @click="$router.push('/rule')">取消</el-button>
                 </el-form-item>
             </el-form-item>
@@ -193,10 +192,15 @@ export default {
     },
     created() {
         if (localStorage.getItem('rule')) {
-            let parse = JSON.parse(localStorage.getItem('rule'));
-            this.form.code = parse.code;
-            this.form.name = parse.name;
-            this.form.description = parse.description;
+            let item = localStorage.getItem('rule');
+            if (typeof JSON.parse(item) === 'object' ){
+                let parse = JSON.parse(item);
+                this.form.code = parse.code;
+                this.form.name = parse.name;
+                this.form.description = parse.description;
+            }
+
+
 
         }
     },
@@ -205,9 +209,13 @@ export default {
             this.values = [];
             this.form.action.value = '';
         },
-        saveAndPreview() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
+        async saveAndPreview() {
+            // debugger
+            // let a =await this.$refs.form.validate();
+            // console.log(a)
+
+            // this.$refs.form.validate((valid) => {
+            //     if (valid) {
                     this.form.conditionGroups.forEach((item, i) => {
                         item.order = i;
                     });
@@ -219,10 +227,11 @@ export default {
                         this.form.action.valueDataType = this.form.action.valueType;
                     }
                     request.post('/rule/add', this.form).then(res => {
-                        this.$router.push('/PreviewRule')
+                        localStorage.setItem('rule', res.data);
+                        this.$router.push('/PreviewRule');
                     });
-                }
-            });
+                // }
+            // });
 
         },
         async focusValue() {
@@ -282,7 +291,7 @@ export default {
 
             }).then(res => {
                 this.conditions = res.data;
-                console.log(this.conditions);
+                // console.log(this.conditions);
             });
         },
         delConditionGroup(item) {

@@ -118,6 +118,7 @@
 <script>
 import request from '@/utils/request';
 import validateConstant from '@/utils/ValidateConstant';
+import { getRuleCache, setRuleCache } from '@/utils/RuleLocalStorage';
 
 export default {
     name: 'basetable',
@@ -191,18 +192,19 @@ export default {
         };
     },
     created() {
-        if (localStorage.getItem('rule')) {
-            let item = localStorage.getItem('rule');
-            if (typeof JSON.parse(item) === 'object' ){
-                let parse = JSON.parse(item);
-                this.form.code = parse.code;
-                this.form.name = parse.name;
-                this.form.description = parse.description;
-            }
+        // let item = getRuleCache();
+        // if (item) {
+        //     if (typeof JSON.parse(item) === 'object' ){
+        //         let parse = JSON.parse(item);
+        //         this.form.code = parse.code;
+        //         this.form.name = parse.name;
+        //         this.form.description = parse.description;
+        //     }
+        // }
+        this.form.code = this.$route.params.form.code;
+        this.form.name =  this.$route.params.form.name;
+        this.form.description =  this.$route.params.form.description;
 
-
-
-        }
     },
     methods: {
         clearValues() {
@@ -227,8 +229,8 @@ export default {
                         this.form.action.valueDataType = this.form.action.valueType;
                     }
                     request.post('/rule/add', this.form).then(res => {
-                        localStorage.setItem('rule', res.data);
-                        this.$router.push('/PreviewRule');
+                        // setRuleCache(res.data)
+                        this.$router.push({name:'PreviewRule',params:{'ruleId':res.data}});
                     });
                 // }
             // });

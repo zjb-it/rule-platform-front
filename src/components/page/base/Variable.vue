@@ -430,6 +430,12 @@ export default {
         },
         // 保存编辑
         saveEdit() {
+            for (const variable of this.form.function.variables) {
+                if (variable.valueType !== 'VARIABLE' && variable.valueType !== 'ELEMENT') {
+                    variable.value=variable.valueDescription
+                }
+            }
+
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     request.post('/variable/add', this.form).then(res => {

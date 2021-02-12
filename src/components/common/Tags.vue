@@ -32,7 +32,7 @@
         },
         methods: {
             ignoreTag(route){
-                return route.path === '/createRule' || route.path === '/ConfigRule';
+                return route.path === '/createRule' || route.path === '/ConfigRule' || route.path === '/PreviewRule';
             },
             isActive(path) {
                 return path === this.$route.fullPath;

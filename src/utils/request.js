@@ -28,11 +28,11 @@ service.interceptors.response.use(
         if (response.data.code === '0000') {
             return response.data;
         } else {
-            ElementUI.Message({
+            let err=ElementUI.Message({
                 message: response.data.message,
                 type: 'error'
             });
-            Promise.reject();
+            return Promise.reject(response);
         }
     },
     error => {
@@ -40,7 +40,7 @@ service.interceptors.response.use(
             message: error,
             type: 'error'
         });
-        return Promise.reject();
+        return Promise.reject(error);
     }
 );
 

@@ -47,7 +47,7 @@
 
 <script>
 
-import request from '@/utils/request';
+import { getRuleCache, setRuleCache }from '@/utils/RuleLocalStorage'
 
 export default {
     name: 'basetable',
@@ -58,14 +58,12 @@ export default {
         };
     },
     created() {
-        if (localStorage.getItem('rule')){
-            let item = localStorage.getItem('rule');
-            if (typeof JSON.parse(item) === 'object' ){
-                this.form=JSON.parse(localStorage.getItem('rule'))
-            }
-        }
-
-
+        // let item = getRuleCache();
+        // if (item){
+        //     if (typeof JSON.parse(item) === 'object' ){
+        //         this.form=JSON.parse(item)
+        //     }
+        // }
     },
     methods: {
 
@@ -73,8 +71,8 @@ export default {
         toConfig() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
-                    localStorage.setItem("rule",JSON.stringify(this.form))
-                    this.$router.push({ path: '/ConfigRule'})
+                    // setRuleCache(JSON.stringify(this.form))
+                    this.$router.push({ name: 'ConfigRule',params:{'form':this.form}})
                 }
             });
 

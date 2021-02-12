@@ -48,6 +48,9 @@ export default {
         },
         inputValueType: {
             require: true
+        },
+        leftValueDataType:{
+
         }
     },
 
@@ -55,6 +58,8 @@ export default {
         return {
             valueForm: this.data,
             valueType: this.inputValueType,
+            valueDataType:this.leftValueDataType,
+
             loading: false,
 
             valueDataTypes: [
@@ -137,6 +142,9 @@ export default {
         },
         data: function(newValue, oldValue) {
             this.valueForm = newValue;
+        },
+        leftValueDataType: function(newValue, oldValue) {
+            this.valueDataType = newValue;
         }
     },
     methods: {
@@ -145,11 +153,12 @@ export default {
         },
 
         validateForm () {
-            let flag = null
+            let flag = true
             this.$refs.valueForm.validate(valid => {
-                flag = valid
-                return flag;
-
+                if (valid) {
+                } else {
+                    flag = false
+                }
             })
             return flag
         },
@@ -173,8 +182,8 @@ export default {
             if (name) {
                 param.name = queryString;
             }
-            if (valueDataType) {
-                param.valueDataType = [valueDataType];
+            if (this.valueDataType) {
+                param.valueDataType = [this.valueDataType];
             }
             return request.post('element/list', {
                 query: param,

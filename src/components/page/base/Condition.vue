@@ -102,7 +102,8 @@
 
                             <ConditionLeft ref="conditionRight" style="width: 68%"
                                            v-bind:data="conditionForm.config.rightVariable"
-                                           v-bind:inputValueType="conditionForm.config.rightVariable.valueType"></ConditionLeft>
+                                           v-bind:inputValueType="conditionForm.config.rightVariable.valueType"
+                                           v-bind:leftValueDataType="conditionForm.config.leftVariable.value.valueDataType===''?conditionForm.config.leftVariable.valueType:conditionForm.config.leftVariable.value.valueDataType"></ConditionLeft>
 
                         </div>
 
@@ -394,7 +395,6 @@ export default {
             this.processValue(param.config.rightVariable);
             let validateForm = await this.$refs.conditionLeft.validateForm();
             let validateForm1 =await this.$refs.conditionRight.validateForm();
-
             if (validateForm && validateForm1) {
                 this.$refs.conditionForm.validate((valid) => {
                     if (valid) {
@@ -434,7 +434,6 @@ export default {
                 //     "valueType":"NUMBER"
                 // }
                 value.valueDataType = value.valueType;
-                value.valueType = 'CONSTANT';
             }
         },
 

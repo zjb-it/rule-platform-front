@@ -7,15 +7,15 @@
             <el-step title="规则配置" description=""></el-step>
             <el-step title="规则测试" description=""></el-step>
         </el-steps>
-
+{{this.form}}
         <el-form ref="form" :model="form" label-width="15%" :rules="rules">
             <el-form-item
                 style="margin-top: 30px"
                 v-for="(domain, index) in form.conditionGroups"
                 :label="'条件组'+(index+1)"
-                :key="index"
+                :key="'conditionGroups'+index"
                 :prop="'conditionGroups.' + index+'.conditionIds'"
-                :rules="{required:true,message:'不能为空'}"
+                :rules="{required:true,message:'不能为空',trigger:'change'}"
             >
                 <el-select
                     style="padding-left: 1.6%"
@@ -157,6 +157,7 @@ export default {
                 }
             ],
             conditions: [],
+            cacheConditionIds:[],
             form: {
                 action: {
                     value: '',
@@ -175,6 +176,7 @@ export default {
                 id: 0,
                 name: ''
             },
+            edit:false,
             rules: {
                 'action.value': [
                     {
@@ -191,6 +193,48 @@ export default {
 
         };
     },
+    activated() {
+        this.conditions=[]
+        this.cacheConditionIds=[]
+        this.values=[]
+        this.form.code = this.$route.params.form.code;
+        this.form.id=this.$route.params.form.id
+        this.form.name =  this.$route.params.form.name;
+        this.form.description =  this.$route.params.form.description;
+        let action = this.$route.params.form.action;
+        if (action) {
+            this.edit = true;
+            this.form.action=action;
+            this.form.id=this.$route.params.form.id
+            this.form.conditionGroups=this.$route.params.form.conditionGroups
+
+            this.form.conditionGroups.forEach((item,i)=>{
+                for (const condition of item.conditions) {
+                    if (!item.conditionIds) {
+                        item.conditionIds=[]
+                    }
+                    item.conditionIds.push(condition.id);
+                    if (this.cacheConditionIds.indexOf(condition.id) < 0) {
+                        this.conditions.push(condition);
+                        this.cacheConditionIds.push(condition.id)
+                    }
+                }
+            })
+            if (this.form.action.valueType === 'ELEMENT') {
+                request.get('/element/get?id='+this.form.action.value).then(res=>{
+                    this.form.action.value=res.data
+                    this.values.push(res.data)
+                })
+
+            }else if (this.form.action.valueType === 'VARIABLE') {
+                request.get('/variable/get?id='+this.form.action.value).then(res=>{
+                    this.form.action.value=res.data
+                    this.values.push(res.data)
+                })
+            }
+
+        }
+    },
     created() {
         // let item = getRuleCache();
         // if (item) {
@@ -201,9 +245,7 @@ export default {
         //         this.form.description = parse.description;
         //     }
         // }
-        this.form.code = this.$route.params.form.code;
-        this.form.name =  this.$route.params.form.name;
-        this.form.description =  this.$route.params.form.description;
+
 
     },
     methods: {
@@ -212,30 +254,38 @@ export default {
             this.form.action.value = '';
         },
         async saveAndPreview() {
+            if (this.edit) {
+                this.addRule('/rule/update')
+            } else {
+                this.addRule('/rule/add')
+            }
+
+        },
+        addRule(url) {
             // debugger
             // let a =await this.$refs.form.validate();
             // console.log(a)
 
             // this.$refs.form.validate((valid) => {
             //     if (valid) {
-                    this.form.conditionGroups.forEach((item, i) => {
-                        item.order = i;
-                    });
-                    if (this.form.action.valueType === 'VARIABLE' || this.form.action.valueType === 'ELEMENT') {
-                        this.form.action.valueDataType = this.form.action.value.valueDataType;
-                        this.form.action.valueName = this.form.action.value.name;
-                        this.form.action.value = this.form.action.value.id;
-                    } else {
-                        this.form.action.valueDataType = this.form.action.valueType;
-                    }
-                    request.post('/rule/add', this.form).then(res => {
-                        // setRuleCache(res.data)
-                        this.$router.push({name:'PreviewRule',params:{'ruleId':res.data}});
-                    });
-                // }
+            this.form.conditionGroups.forEach((item, i) => {
+                item.order = i;
+            });
+            if (this.form.action.valueType === 'VARIABLE' || this.form.action.valueType === 'ELEMENT') {
+                this.form.action.valueDataType = this.form.action.value.valueDataType;
+                this.form.action.valueName = this.form.action.value.name;
+                this.form.action.value = this.form.action.value.id;
+            } else {
+                this.form.action.valueDataType = this.form.action.valueType;
+            }
+            request.post(url, this.form).then(res => {
+                // setRuleCache(res.data)
+                this.$router.push({name:'PreviewRule',params:{'ruleId':res.data}});
+            });
+            // }
             // });
-
         },
+
         async focusValue() {
             if (this.form.action.valueType === 'ELEMENT') {
                 this.queryElement();

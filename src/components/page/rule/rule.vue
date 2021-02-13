@@ -29,9 +29,25 @@
                 <el-table-column prop="id" label="ID"  align="center"></el-table-column>
                 <el-table-column prop="name" label="名称"></el-table-column>
                 <el-table-column prop="code" label="code"></el-table-column>
+                <el-table-column prop="status" label="状态">
+                    <template slot-scope="scope">
+                        <el-tag
+                            type="success"
+                            disable-transitions>{{scope.row.status===0?'编辑中':scope.row.status===1?'待发布':'已发布'}}</el-tag>
+                    </template>
+
+                </el-table-column>
 
                 <el-table-column prop="description" label="描述" show-overflow-tooltip></el-table-column>
-
+                <af-table-column
+                    fixed="right"
+                    label="操作"
+                    width="100">
+                    <template slot-scope="scope">
+                        <el-button v-if="scope.row.status>0" @click="previewRule(scope.row)" type="text" size="small">预览</el-button>
+                        <el-button @click="editRule(scope.row)" type="text" size="small">编辑</el-button>
+                    </template>
+                </af-table-column>
 
             </el-table>
             <div class="pagination">
@@ -94,10 +110,19 @@ export default {
 
         };
     },
-    created() {
+    activated() {
         this.getData();
     },
+    created() {
+        // this.getData();
+    },
     methods: {
+        previewRule(row) {
+            this.$router.push({name:'PreviewRule',params:{ruleId:row.id}})
+        },
+        editRule(row) {
+            this.$router.push({name:'createRule',params:{ruleId:row.id}})
+        },
         // 获取 easy-mock 的模拟数据
         getData() {
             request.post("/rule/page",this.query).then(res => {

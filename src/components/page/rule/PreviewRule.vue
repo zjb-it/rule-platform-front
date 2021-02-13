@@ -108,8 +108,8 @@
             <el-col :span="19">
                 <el-tag v-if="this.rule.action.valueType==='VARIABLE' || this.rule.action.valueType==='ELEMENT'"
                         type="success">
-                    <span v-if="this.rule.action.valueType==='VARIABLE'">变量：</span>>{{ this.rule.action.valueName }}
-                    <span v-if="this.rule.action.valueType==='ELEMENT'">元素：</span>>{{ this.rule.action.valueName }}
+                    <span v-if="this.rule.action.valueType==='VARIABLE'">变量：</span>{{ this.rule.action.valueName }}
+                    <span v-if="this.rule.action.valueType==='ELEMENT'">元素：</span>{{ this.rule.action.valueName }}
                 </el-tag>
                 <el-tag v-else type="success">{{ this.rule.action.value }}</el-tag>
             </el-col>
@@ -184,13 +184,21 @@ export default {
 
         };
     },
-
-    created() {
+    activated() {
+        this.$refs.form.resetFields();
+        this.ruleResult=''
         let ruleId = this.$route.params.ruleId;
         if (ruleId) {
             this.getRule(ruleId);
 
         }
+    },
+    created() {
+        // let ruleId = this.$route.params.ruleId;
+        // if (ruleId) {
+        //     this.getRule(ruleId);
+        //
+        // }
     },
     methods: {
         publishRule() {
@@ -200,13 +208,13 @@ export default {
         },
         async getRule(id) {
 
-            let rule=await request.get('rule/get?id=' + id);
-            this.rule=rule.data;
+            let rule = await request.get('rule/get?id=' + id);
+            this.rule = rule.data;
             let elementIds = rule.data.paramIds;
             this.executeCommand = 'curl -H "Content-Type: application/json" -X POST  --data \'{';
 
             if (elementIds.length > 0) {
-               let elements= await request.post('/element/getByIds', { 'ids': elementIds });
+                let elements = await request.post('/element/getByIds', { 'ids': elementIds });
                 this.parameters = elements.data;
                 elements.data.forEach((ele, index) => {
                     this.executeCommand += '"' + ele.code + '":' + '"${' + ele.code + '}"';
@@ -219,7 +227,6 @@ export default {
             this.executeCommand += '${host}/open/ruleEngine/rule/execute';
 
         },
-
 
 
         testRule() {

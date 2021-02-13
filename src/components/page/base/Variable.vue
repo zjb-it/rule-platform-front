@@ -334,7 +334,7 @@ export default {
 
 
         querySearchAsync(queryString, cb, valueType, valueDataType) {
-            if (valueType !== 'CONSTANT' && queryString && queryString !== '' && cb) {
+            if (queryString && queryString !== '' && cb) {
                 var data = [];
                 if (valueType === 'VARIABLE') {
                     variables({
@@ -374,7 +374,7 @@ export default {
             });
         },
         handleSelect(value, i, valueType) {
-            if (valueType === 'CONSTANT') {
+            if (valueType !== 'VARIABLE' && valueType !== 'ELEMENT') {
                 this.form.function.variables[i].value = value;
             } else {
                 this.form.function.variables[i].value = value.id;
@@ -382,7 +382,7 @@ export default {
 
         },
         valueTypeBlur(event, i, valueType, valuleDesc) {
-            if (valueType === 'CONSTANT') {
+            if (valueType !== 'VARIABLE' && valueType !== 'ELEMENT') {
                 this.form.function.variables[i].value = valuleDesc;
             }
         },

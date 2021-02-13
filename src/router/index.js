@@ -119,6 +119,7 @@ export default new Router({
                 },
                 {
                     path: '/createRule',
+                    name: 'createRule',
                     component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/CreateRule.vue'),
                     meta: { title: '创建规则' }
                 },

@@ -16,7 +16,8 @@
                 :rules="[
                     { required: true, message: 'code不能为空',trigger:'blur'},
                     ]">
-                <el-input type="code" v-model="form.code" auto-complete="off" style="width: 40%"></el-input>
+                <el-input :disabled="edit" type="code" v-model="form.code" auto-complete="off"
+                          style="width: 40%"></el-input>
             </el-form-item>
 
 
@@ -47,32 +48,47 @@
 
 <script>
 
-import { getRuleCache, setRuleCache }from '@/utils/RuleLocalStorage'
+import { getRuleCache, setRuleCache } from '@/utils/RuleLocalStorage';
+import request from '@/utils/request';
 
 export default {
     name: 'basetable',
     data() {
         return {
-            form: {}
-
+            form: {code:'',name:'',description:''},
+            edit: false
         };
     },
-    created() {
+    activated() {
+        this.form={}
+        let ruleId = this.$route.params.ruleId;
+        if (ruleId) {
+            this.edit = true;
+            request.get('rule/get?id=' + ruleId).then(res => {
+                this.form = res.data;
+            });
+        }
+    },
+     created() {
         // let item = getRuleCache();
         // if (item){
         //     if (typeof JSON.parse(item) === 'object' ){
         //         this.form=JSON.parse(item)
         //     }
         // }
+        // this.$refs.form.resetFields();
+
+
     },
     methods: {
+
 
         // 保存编辑
         toConfig() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     // setRuleCache(JSON.stringify(this.form))
-                    this.$router.push({ name: 'ConfigRule',params:{'form':this.form}})
+                    this.$router.push({ name: 'ConfigRule', params: { 'form': this.form } });
                 }
             });
 

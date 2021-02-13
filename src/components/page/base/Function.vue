@@ -96,7 +96,7 @@
 
             </el-dialog>
 
-            <el-dialog title="试一下" :visible.sync="tryVisible" v-if="tryVisible" width="35%" show-close @close="closedDiaglog">
+            <el-dialog title="试一下" :visible.sync="tryVisible"  width="35%" show-close @close="closedDiaglog">
                 <el-form ref="functionForm" :model="functionForm" label-width="80px">
 
                     <el-form-item label="code" prop="code">
@@ -315,7 +315,9 @@ export default {
 
         // 编辑操作
         handleAdd() {
-            this.functionForm={};
+            if (this.$refs.functionForm) {
+                this.$refs.functionForm.resetFields();
+            }
             this.addVisible = true;
         },
         // 保存编辑

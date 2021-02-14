@@ -6,7 +6,7 @@
             <el-input
                 v-if="valueType!=='ELEMENT' && valueType!=='VARIABLE'"
                 v-model="valueForm.value"
-                :disabled="valueForm.valueType===''"
+                :disabled="valueForm.valueType==='' || echo"
             ></el-input>
 
             <el-select
@@ -16,12 +16,12 @@
                 filterable
                 remote
                 clearable
-                :disabled="valueForm.valueType===''"
+                :disabled="valueForm.valueType==='' || echo"
                 reserve-keyword
                 placeholder="请输入名称"
                 @focus="focusValue"
                 value-key="id"
-                :remote-method="((queryString)=>{remoteValue(queryString,valueForm.value)})"
+                :remote-method="((queryString)=>{remoteValue(queryString,valueForm.valueType)})"
                 :loading="loading">
                 <el-option
                     v-for="item in values"
@@ -51,12 +51,20 @@ export default {
         },
         leftValueDataType:{
 
-        }
+        },
+        echo:{}
     },
 
     data() {
         return {
-            valueForm: this.data,
+            valueForm: 	{
+                "description": "",
+                "name": "",
+                "value": "",
+                "valueDataType": "",
+                "valueDescription": "",
+                "valueType": ""
+            },
             valueType: this.inputValueType,
             valueDataType:this.leftValueDataType,
 
@@ -138,13 +146,28 @@ export default {
     watch: {
         inputValueType: function(newValue, oldValue) {
             this.valueType = newValue;
-            console.log(this.valueType)
         },
         data: function(newValue, oldValue) {
             this.valueForm = newValue;
         },
         leftValueDataType: function(newValue, oldValue) {
             this.valueDataType = newValue;
+        }
+    },
+    created() {
+        this.valueForm=this.data
+        if (this.echo) {
+            if (this.valueType === 'ELEMENT') {
+                request.get('/element/get?id='+this.valueForm.value).then(res=>{
+                    this.valueForm.value=res.data
+                    this.values.push(res.data)
+                })
+            }else if (this.valueType === 'VARIABLE') {
+                request.get('/variable/get?id='+this.valueForm.value).then(res=>{
+                    this.valueForm.value=res.data
+                    this.values.push(res.data)
+                })
+            }
         }
     },
     methods: {
@@ -169,18 +192,18 @@ export default {
                 this.queryVariable();
             }
         },
-        remoteValue(value, valueDataType) {
-            if (this.valueForm.valueType === 'ELEMENT') {
-                this.queryElement(value, valueDataType);
+        remoteValue(value, valueType) {
+            if (valueType === 'ELEMENT') {
+                this.queryElement(value);
 
-            } else if (this.valueForm.valueType === 'VARIABLE') {
-                this.queryVariable(value, valueDataType);
+            } else if (valueType === 'VARIABLE') {
+                this.queryVariable(value);
             }
         },
-        queryElement(name, valueDataType) {
+        queryElement(name) {
             var param = {};
             if (name) {
-                param.name = queryString;
+                param.name = name;
             }
             if (this.valueDataType) {
                 param.valueDataType = [this.valueDataType];
@@ -196,14 +219,14 @@ export default {
                 console.log(this.values);
             });
         },
-        queryVariable(name, valueDataType) {
+        queryVariable(name) {
             var param = {};
             if (name) {
-                param.name = queryString;
+                param.name = name;
             }
 
-            if (valueDataType) {
-                param.valueDataType = [valueDataType];
+            if (this.valueDataType) {
+                param.valueDataType = [this.valueDataType];
             }
             request.post('variable/list', {
                 query: param,

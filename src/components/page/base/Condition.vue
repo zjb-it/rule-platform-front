@@ -45,7 +45,8 @@
 
                         <div style="display: flex">
                             <el-select v-model="conditionForm.config.leftVariable.valueType" slot="prepend"
-                                       placeholder="请选择" style="width: 28%;margin-right: 4%">
+                                       placeholder="请选择" style="width: 28%;margin-right: 4%"
+                            @change="resetConditionLeft('conditionLeft')">
                                 <el-option
                                     v-for="item in options"
                                     :key="item.value"
@@ -264,7 +265,9 @@ export default {
         };
     },
     methods: {
-
+        resetConditionLeft(formName) {
+            this.$refs[formName].reset();
+        },
         getData() {
             listConditions(this.query).then(res => {
                 this.tableData = res.data;

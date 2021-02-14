@@ -325,7 +325,7 @@ export default {
             var validateResult = await this.$refs.functionForm.validate();
             for (const argument of this.$refs.functionParam) {
                 let validateForm = await argument.validateForm();
-                validateResult = validateForm && validateForm;
+                validateResult = validateResult && validateForm;
             }
             if (validateResult) {
                 if (this.functionForm.id !== '') {

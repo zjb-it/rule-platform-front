@@ -54,7 +54,7 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="添加变量" :visible.sync="editVisible" width="30%" @close="closedDiaglog">
+        <el-dialog title="添加变量" :visible.sync="editVisible" width="40%">
             <el-form ref="form" :model="form" label-width="100px" :rules="rules">
 
                 <el-form-item label="名称" prop="name">
@@ -79,6 +79,7 @@
                         reserve-keyword
                         placeholder="请输入函数名称"
                         @focus="functionFocus"
+                        @change="changeFunction"
                         value-key="name"
                         :remote-method="remoteMethod"
                         :loading="loading" style="width: 100%">
@@ -92,49 +93,31 @@
                     </el-select>
                 </el-form-item>
 
-                <el-form-item style=" margin-left: 15%" v-for="(item,i) in form.function.variables" prop="variables">
+                <el-form-item style=" margin-left: 15%;" v-for="(item,i) in this.function.variables" prop="variables">
                     <span slot="label">
                         <p style="color: #20a0ff; font-size: 10px">{{ item.description }}</p>
                         <p style="color: #20a0ff; font-size: 10px">({{ item.valueDataType }})</p>
                     </span>
-                    <!--如果是java对象，则只能使用变量-->
-                    <div v-if="item.valueDataType==='POJO'" style="margin-top: 15px;">
-                        <el-autocomplete
-                            v-model="form.function.variables[i].valueDescription"
-                            placeholder="请输入变量名称"
-                            :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,'VARIABLE','POJO')})"
-
-                            @select="((value)=>{handleSelect(value,i,form.function.variables[i].valueType)})"
+                    <div style="display: flex">
+                        <!--如果是java对象，则只能使用变量 todo-->
+                        <el-select v-model="form.function.variables[i].valueType"
+                                   placeholder="请选择" style="width: 28%;margin-right: 4%"
+                                   @change="changeValueType(i)"
+                                   @focus="((event)=>{getOptions(event,item.valueDataType)})"
                         >
-                            <el-select v-model="form.function.variables[i].valueType='变量'" slot="prepend" disabled>
-                            </el-select>
-                        </el-autocomplete>
+                            <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            >
+                            </el-option>
+                        </el-select>
+                        <ConditionLeft :ref="'funVariables'+i" style="width: 68%"
+                                       v-bind:data="form.function.variables[i]"
+                                       v-bind:inputValueType="item.valueType"
+                        ></ConditionLeft>
                     </div>
-
-                    <div v-else style="margin-top: 15px;">
-                        <el-autocomplete
-                            v-model="form.function.variables[i].valueDescription"
-                            placeholder="请输入内容"
-                            @blur="((event)=>{valueTypeBlur(event,i,form.function.variables[i].valueType,form.function.variables[i].valueDescription)})"
-                            :disabled="form.function.variables[i].valueType===undefined"
-                            :fetch-suggestions="((queryString,cb)=>{querySearchAsync(queryString,cb,form.function.variables[i].valueType,item.valueDataType)})"
-                            @select="((value)=>{handleSelect(value,i,form.function.variables[i].valueType)})"
-                        >
-                            <el-select v-model="form.function.variables[i].valueType"
-                                       slot="prepend"
-                                       placeholder="请选择"
-                                       @focus="((event)=>{getOptions(event,item.valueDataType)})">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                >
-                                </el-option>
-                            </el-select>
-                        </el-autocomplete>
-                    </div>
-
                 </el-form-item>
 
 
@@ -150,31 +133,65 @@
         </el-dialog>
 
 
-        <el-dialog title="查看变量" :visible.sync="showVisible" width="30%">
+        <el-dialog title="查看变量" :visible.sync="showVisible" v-if="showVisible" width="40%">
             <el-form :model="showForm" label-width="78px" disabled>
 
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="showForm.name"></el-input>
                 </el-form-item>
+
                 <el-form-item label="数据类型" prop="valueDataType">
-                    <el-input v-model="showForm.valueDataType"></el-input>
-                </el-form-item>
-                <el-form-item label="函数" prop="function">
-                    <el-input v-model="showForm.function.name"></el-input>
+                    <el-select v-model="showForm.valueDataType" style="width: 100%">
+                        <el-option
+                            v-for="item in valueDataTypes"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
 
-                <el-form-item style=" margin-left: 15%" v-for="(item,i) in showForm.function.variables"
+
+                <el-form-item label="函数" prop="function">
+                    <el-select
+                        v-model="showForm.function"
+                        disabled
+                        value-key="name"
+                        :loading="loading" style="width: 100%">
+                        <el-option
+                            v-for="item in functions"
+                            :key="item.name"
+                            :label="item.description"
+                            :value="item"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item style=" margin-left: 15%;" v-for="(item,i) in showForm.function.variables"
                               prop="variables">
                     <span slot="label">
-                        <p style="color: #20a0ff;">{{ item.description }}</p>
-                        <p style="color: #20a0ff;">({{ item.valueDataType }})</p>
+                        <p style="color: #20a0ff; font-size: 10px">{{ item.description }}</p>
+                        <p style="color: #20a0ff; font-size: 10px">({{ item.valueDataType }})</p>
                     </span>
-                    <!--如果是java对象，则只能使用变量-->
-                    <div style="margin-top: 15px;">
-                        <el-input v-model="showForm.function.variables[i].valueDescription">
-                            <el-select v-model="showForm.function.variables[i].valueType" slot="prepend" disabled>
-                            </el-select>
-                        </el-input>
+                    <div style="display: flex">
+                        <!--如果是java对象，则只能使用变量 todo-->
+                        <el-select disabled v-model="showForm.function.variables[i].valueType"
+                                   placeholder="请选择" style="width: 28%;margin-right: 4%"
+                        >
+                            <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            >
+                            </el-option>
+                        </el-select>
+                        <ConditionLeft style="width: 68%" ref="variables"
+                                       v-bind:data="item"
+                                       v-bind:inputValueType="item.valueType"
+                                       :echo="true"
+                        ></ConditionLeft>
                     </div>
                 </el-form-item>
                 <el-form-item label="描述" prop="description">
@@ -191,6 +208,8 @@
 
 <script>
 import request from '@/utils/request';
+import validateConstant from '@/utils/ValidateConstant';
+import ConditionLeft from '@/components/page/base/ConditionLeft';
 
 export const variables = query => {
     return request({
@@ -201,34 +220,11 @@ export const variables = query => {
 };
 export default {
     name: 'basetable',
+    components: {
+        ConditionLeft
+    },
     data() {
-        let validateConstant = (rule, value, callback) => {
-            for (const variable of this.form.function.variables) {
-                if (variable.value === '') {
-                    callback(new Error('不能为空'));
-                    return;
-                }
-                if (variable.valueType === 'CONSTANT') {
-                    if (variable.valueDataType === 'BOOLEAN') {
-                        if (variable.value !== 'true' && variable.value !== 'false') {
-                            callback(new Error('布尔类型只能是true或false'));
-                        }
-                    } else if (variable.valueDataType === 'COLLECTION') {
-                        if (!Array.isArray(JSON.parse(variable.value))) {
-                            callback(new Error('不是数组类型，数组类型格式为[1,2,3]'));
-                        }
-                    } else if (variable.valueDataType === 'JSONOBJECT') {
-                        if (typeof JSON.parse(variable.value) !== 'object' || Array.isArray(JSON.parse(variable.value))) {
-                            callback(new Error('不是JSON类型，json类型为{...}'));
-                        }
-                    } else {
-                        callback();
-                    }
-                } else {
-                    callback();
-                }
-            }
-        };
+
         return {
             query: {
                 'query': {},
@@ -241,17 +237,48 @@ export default {
             showVisible: false,
             searchFunctionName: '',
             select: '',
+            function: {},
             loading: false,
             tableData: [],
             editVisible: false,
             pageTotal: 0,
             form: {
-                valueDataType: 'NUMBER',
-                function: {}
+                'description': '',
+                'function': {
+                    'name': '',
+                    'variables': [
+                        {
+                            'description': '',
+                            'name': '',
+                            'value': '',
+                            'valueDataType': '',
+                            'valueDescription': '',
+                            'valueType': ''
+                        }
+                    ]
+                },
+                'id': '',
+                'name': '',
+                'valueDataType': ''
             },
             showForm: {
-                valueDataType: '',
-                function: {}
+                'description': '',
+                'function': {
+                    'name': '',
+                    'variables': [
+                        {
+                            'description': '',
+                            'name': '',
+                            'value': '',
+                            'valueDataType': '',
+                            'valueDescription': '',
+                            'valueType': ''
+                        }
+                    ]
+                },
+                'id': '',
+                'name': '',
+                'valueDataType': ''
             },
             functions: [],
             valueDataTypes: [
@@ -310,8 +337,11 @@ export default {
 
     },
     methods: {
+        changeFunction() {
+            this.function = this.form.function;
+        },
         getOptions(event, valueDataType) {
-            this.options=[
+            this.options = [
                 {
                     value: 'ELEMENT',
                     label: '元素'
@@ -323,69 +353,37 @@ export default {
             ];
             for (const valueDataType1 of this.valueDataTypes) {
                 if (valueDataType1.value === valueDataType) {
-                    this.options.push(valueDataType1)
-                    return
+                    this.options.push(valueDataType1);
+                    return;
                 }
             }
 
         },
-
-
-
-
-        querySearchAsync(queryString, cb, valueType, valueDataType) {
-            if (queryString && queryString !== '' && cb) {
-                var data = [];
-                if (valueType === 'VARIABLE') {
-                    variables({
-                        query: { 'name': queryString, 'valueDataType': [valueDataType] },
-                        page: {
-                            pageIndex: 1,
-                            pageSize: 10
-                        }
-                    }).then(function(res) {
-                        for (let i = 0; i < res.data.length; i++) {
-                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
-                        }
-                        cb(data);
-                    });
-
-                } else if (valueType === 'ELEMENT') {
-                    request.post('element/list', {
-                        query: { 'name': queryString, 'valueDataType': [valueDataType] },
-                        page: {
-                            pageIndex: 1,
-                            pageSize: 10
-                        }
-                    }).then(res => {
-                        for (let i = 0; i < res.data.length; i++) {
-                            data[i] = { 'value': res.data[i].name, 'id': res.data[i].id };
-                        }
-                        cb(data);
-                    });
-
-                }
-            }
+        changeValueType(i) {
+            let ref = 'funVariables' + i;
+            this.$refs[ref][0].reset();
         },
-        showVaiableDetail(variable) {
-            request.get('variable/get', { params: { 'id': variable.id } }).then(res => {
-                this.showForm = res.data;
-                this.showVisible = true;
-            });
-        },
-        handleSelect(value, i, valueType) {
-            if (valueType !== 'VARIABLE' && valueType !== 'ELEMENT') {
-                this.form.function.variables[i].value = value;
-            } else {
-                this.form.function.variables[i].value = value.id;
-            }
 
+        async showVaiableDetail(variable) {
+            // if (this.$refs.variables) {
+            //     this.$refs.variables.forEach(item=>{
+            //         item.reset()
+            //     })
+            // }
+            // debugger
+            let res = await request.get('variable/get', { params: { 'id': variable.id } });
+            this.showForm = res.data;
+            this.listFunction();
+            this.showVisible = true;
+            // request.get('variable/get', { params: { 'id': variable.id } }).then(res => {
+            //     this.showForm = res.data;
+            //     //todo 优化为只查当前一个函数
+            //     this.listFunction()
+            //
+            //     this.showVisible = true;
+            // });
         },
-        valueTypeBlur(event, i, valueType, valuleDesc) {
-            if (valueType !== 'VARIABLE' && valueType !== 'ELEMENT') {
-                this.form.function.variables[i].value = valuleDesc;
-            }
-        },
+
 
         getData() {
             variables(this.query).then(res => {
@@ -404,9 +402,6 @@ export default {
             });
         },
 
-        closedDiaglog() {
-            this.$refs.form.resetFields();
-        },
 
         // 触发搜索按钮
         handleSearch() {
@@ -425,16 +420,19 @@ export default {
 
         // 编辑操作
         handleAdd() {
-            console.log(this.form.function);
+            if (this.$refs.form) {
+                this.$refs.form.resetFields();
+            }
+
             this.editVisible = true;
         },
         // 保存编辑
         saveEdit() {
-            for (const variable of this.form.function.variables) {
-                if (variable.valueType !== 'VARIABLE' && variable.valueType !== 'ELEMENT') {
-                    variable.value=variable.valueDescription
-                }
-            }
+            // for (const variable of this.form.function.variables) {
+            //     if (variable.valueType !== 'VARIABLE' && variable.valueType !== 'ELEMENT') {
+            //         variable.value=variable.valueDescription
+            //     }
+            // }
 
             this.$refs.form.validate((valid) => {
                 if (valid) {

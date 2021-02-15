@@ -21,7 +21,6 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm()">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>
@@ -46,7 +45,7 @@ export default {
             this.$refs.login.validate(valid => {
                 if (valid) {
                     this.$message.success('登录成功');
-                    localStorage.setItem('ms_username', this.param.username);
+                    localStorage.setItem('username', this.param.username);
                     this.$router.push('/');
                 } else {
                     this.$message.error('请输入账号和密码');

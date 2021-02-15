@@ -15,18 +15,18 @@
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
-                <div class="btn-bell">
-                    <el-tooltip
-                        effect="dark"
-                        :content="message?`有${message}条未读消息`:`消息中心`"
-                        placement="bottom"
-                    >
-                        <router-link to="/tabs">
-                            <i class="el-icon-bell"></i>
-                        </router-link>
-                    </el-tooltip>
-                    <span class="btn-bell-badge" v-if="message"></span>
-                </div>
+<!--                <div class="btn-bell">-->
+<!--                    <el-tooltip-->
+<!--                        effect="dark"-->
+<!--                        :content="message?`有${message}条未读消息`:`消息中心`"-->
+<!--                        placement="bottom"-->
+<!--                    >-->
+<!--                        <router-link to="/tabs">-->
+<!--                            <i class="el-icon-bell"></i>-->
+<!--                        </router-link>-->
+<!--                    </el-tooltip>-->
+<!--                    <span class="btn-bell-badge" v-if="message"></span>-->
+<!--                </div>-->
                 <!-- 用户头像 -->
                 <div class="user-avator">
                     <img src="../../assets/img/img.jpg" />
@@ -58,7 +58,7 @@ export default {
     },
     computed: {
         username() {
-            let username = localStorage.getItem('ms_username');
+            let username = localStorage.getItem('username');
             return username ? username : this.name;
         }
     },
@@ -66,7 +66,7 @@ export default {
         // 用户名下拉菜单选择事件
         handleCommand(command) {
             if (command == 'loginout') {
-                localStorage.removeItem('ms_username');
+                localStorage.removeItem('username');
                 this.$router.push('/login');
             }
         },

@@ -1,5 +1,5 @@
 module.exports = {
-    publicPath: '/',
+    publicPath: '/rule-front/',
     assetsDir: 'static',
     productionSourceMap: false,
     devServer: {

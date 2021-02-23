@@ -58,12 +58,12 @@ export default {
     data() {
         return {
             valueForm: 	{
-                "description": "",
-                "name": "",
-                "value": "",
-                "valueDataType": "",
-                "valueDescription": "",
-                "valueType": ""
+                description: "",
+                name: "",
+                value: "",
+                valueDataType: "",
+                valueDescription: "",
+                valueType: ""
             },
             valueType: this.inputValueType,
             valueDataType:this.leftValueDataType,
@@ -148,14 +148,19 @@ export default {
             this.valueType = newValue;
         },
         data: function(newValue, oldValue) {
-            this.valueForm = newValue;
+            if (newValue) {
+                this.valueForm = newValue;
+            }
         },
         leftValueDataType: function(newValue, oldValue) {
             this.valueDataType = newValue;
         }
     },
     created() {
-        this.valueForm=this.data
+
+        if (this.data.value) {
+            this.valueForm=this.data
+        }
         if (this.echo) {
             if (this.valueType === 'ELEMENT') {
                 request.get('/element/get?id='+this.valueForm.value).then(res=>{
@@ -169,6 +174,8 @@ export default {
                 })
             }
         }
+        console.log(this.valueForm)
+
     },
     methods: {
         reset() {
@@ -216,7 +223,6 @@ export default {
                 }
             }).then(res => {
                 this.values = res.data;
-                console.log(this.values);
             });
         },
         queryVariable(name) {

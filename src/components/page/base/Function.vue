@@ -268,9 +268,12 @@ export default {
             for (const argument of this.functionForm.params) {
                 param[argument.code] = argument.value;
             }
-            axios.post(this.functionForm.url,JSON.stringify(param)).then(res=>{
-                this.functionResult=JSON.stringify(res)
-                console.log(this.functionForm)
+            const service = axios.create({
+                headers: { 'Content-Type': 'application/json' },
+                timeout: 5000
+            });
+            service.post(this.functionForm.url,JSON.stringify(param)).then(res=>{
+                this.functionResult=JSON.stringify(res.data)
             })
 
         },

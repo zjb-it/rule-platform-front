@@ -31,7 +31,7 @@ export default {
     data: function() {
         return {
             param: {
-                username: 'admin',
+                username: 'zhaojingbo',
                 password: '123123',
             },
             rules: {

@@ -115,7 +115,7 @@
                         </el-select>
                         <ConditionLeft :ref="'funVariables'+i" style="width: 68%"
                                        v-bind:data="form.function.variables[i]"
-                                       v-bind:inputValueType="item.valueType"
+                                       v-bind:inputValueType="form.function.variables[i].valueType"
                                        :leftValueDataType="item.valueDataType"
                         ></ConditionLeft>
                     </div>
@@ -220,6 +220,25 @@ export const variables = query => {
         data: query
     });
 };
+let defaultForm = {
+    'description': '',
+    'function': {
+        'name': '',
+        'variables': [
+            {
+                'description': '',
+                'name': '',
+                'value': '',
+                'valueDataType': '',
+                'valueDescription': '',
+                'valueType': ''
+            }
+        ]
+    },
+    'id': '',
+    'name': '',
+    'valueDataType': ''
+};
 export default {
     name: 'basetable',
     components: {
@@ -244,25 +263,7 @@ export default {
             tableData: [],
             editVisible: false,
             pageTotal: 0,
-            form: {
-                'description': '',
-                'function': {
-                    'name': '',
-                    'variables': [
-                        {
-                            'description': '',
-                            'name': '',
-                            'value': '',
-                            'valueDataType': '',
-                            'valueDescription': '',
-                            'valueType': ''
-                        }
-                    ]
-                },
-                'id': '',
-                'name': '',
-                'valueDataType': ''
-            },
+            form: defaultForm,
             showForm: {
                 'description': '',
                 'function': {
@@ -422,17 +423,16 @@ export default {
 
         // 编辑操作
         handleAdd() {
-            if (this.$refs.form) {
-                this.$refs.form.resetFields();
-            }
-
+            this.form=JSON.parse(JSON.stringify(defaultForm))
+            this.function=[]
             this.editVisible = true;
+
         },
         // 保存编辑
         saveEdit() {
             for (const variable of this.form.function.variables) {
                 if (variable.valueType === 'VARIABLE' || variable.valueType === 'ELEMENT') {
-                    variable.value=variable.value.id
+                    variable.value = variable.value.id;
                 }
             }
 

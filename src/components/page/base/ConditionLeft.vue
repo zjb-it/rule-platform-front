@@ -6,7 +6,8 @@
             <el-input
                 v-if="valueType!=='ELEMENT' && valueType!=='VARIABLE'"
                 v-model="valueForm.value"
-                :disabled="valueType==='' || echo"
+                @focus="focusValue"
+                :disabled="!valueType || echo"
             ></el-input>
 
             <el-select
@@ -16,7 +17,7 @@
                 filterable
                 remote
                 clearable
-                :disabled="valueType==='' || echo"
+                :disabled="!valueType || echo"
                 reserve-keyword
                 placeholder="请输入名称"
                 @focus="focusValue"
@@ -65,8 +66,8 @@ export default {
                 valueDescription: "",
                 valueType: ""
             },
-            valueType: this.inputValueType,
-            valueDataType:this.leftValueDataType,
+            valueType: '',
+            valueDataType:'',
 
             loading: false,
 
@@ -157,9 +158,12 @@ export default {
         }
     },
     created() {
+        // debugger
+        this.valueDataType=this.leftValueDataType
+        this.valueType=this.inputValueType
         this.valueForm=this.data
-        if (this.valueForm.value) {
-            this.valueForm.value=''
+        if (!this.valueForm.hasOwnProperty('value')) {
+            this.$set(this.valueForm, 'value', null)
         }
         if (this.echo) {
             if (this.valueType === 'ELEMENT') {
@@ -174,7 +178,6 @@ export default {
                 })
             }
         }
-        console.log(this.valueForm)
 
     },
     methods: {
@@ -193,6 +196,12 @@ export default {
             return flag
         },
         async focusValue() {
+            console.log(this.valueType)
+            if (this.valueType) {
+                console.log("444444444444444")
+            }
+
+            console.log(this.valueType==='');
             if (this.valueType === 'ELEMENT') {
                 this.queryElement();
             } else if (this.valueType === 'VARIABLE') {
@@ -200,6 +209,7 @@ export default {
             }
         },
         remoteValue(value, valueType) {
+
             if (valueType === 'ELEMENT') {
                 this.queryElement(value);
 

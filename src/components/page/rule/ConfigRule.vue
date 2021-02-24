@@ -7,7 +7,6 @@
             <el-step title="规则配置" description=""></el-step>
             <el-step title="规则测试" description=""></el-step>
         </el-steps>
-{{this.form}}
         <el-form ref="form" :model="form" label-width="15%" :rules="rules">
             <el-form-item
                 style="margin-top: 30px"

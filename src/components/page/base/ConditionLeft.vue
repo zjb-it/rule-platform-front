@@ -157,7 +157,6 @@ export default {
         }
     },
     created() {
-
         if (this.data.value) {
             this.valueForm=this.data
         }
@@ -193,9 +192,9 @@ export default {
             return flag
         },
         async focusValue() {
-            if (this.valueForm.valueType === 'ELEMENT') {
+            if (this.valueType === 'ELEMENT') {
                 this.queryElement();
-            } else if (this.valueForm.valueType === 'VARIABLE') {
+            } else if (this.valueType === 'VARIABLE') {
                 this.queryVariable();
             }
         },

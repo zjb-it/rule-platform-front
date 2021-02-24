@@ -116,6 +116,7 @@
                         <ConditionLeft :ref="'funVariables'+i" style="width: 68%"
                                        v-bind:data="form.function.variables[i]"
                                        v-bind:inputValueType="item.valueType"
+                                       :leftValueDataType="item.valueDataType"
                         ></ConditionLeft>
                     </div>
                 </el-form-item>
@@ -190,6 +191,7 @@
                         <ConditionLeft style="width: 68%" ref="variables"
                                        v-bind:data="item"
                                        v-bind:inputValueType="item.valueType"
+                                       :input-value-type="item.valueDataType"
                                        :echo="true"
                         ></ConditionLeft>
                     </div>
@@ -428,11 +430,11 @@ export default {
         },
         // 保存编辑
         saveEdit() {
-            // for (const variable of this.form.function.variables) {
-            //     if (variable.valueType !== 'VARIABLE' && variable.valueType !== 'ELEMENT') {
-            //         variable.value=variable.valueDescription
-            //     }
-            // }
+            for (const variable of this.form.function.variables) {
+                if (variable.valueType === 'VARIABLE' || variable.valueType === 'ELEMENT') {
+                    variable.value=variable.value.id
+                }
+            }
 
             this.$refs.form.validate((valid) => {
                 if (valid) {

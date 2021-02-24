@@ -142,7 +142,7 @@
             <el-col :span="5" :offset="3">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>规则调用参考</span>
+                        <span>规则发布后，调用参考</span>
                     </div>
                     <div style="word-wrap:break-word;">{{ this.executeCommand }}</div>
                 </el-card>
@@ -212,6 +212,8 @@ export default {
             this.rule = rule.data;
             let elementIds = rule.data.paramIds;
             this.executeCommand = 'curl -H "Content-Type: application/json" -X POST  --data \'{';
+            this.executeCommand+='"ruleCode":'+'"'+this.rule.code+'",'
+            this.executeCommand+='"ruleParam":{'
 
             if (elementIds.length > 0) {
                 let elements = await request.post('/element/getByIds', { 'ids': elementIds });
@@ -223,7 +225,7 @@ export default {
                     }
                 });
             }
-            this.executeCommand += '}\' ';
+            this.executeCommand += '}}\' ';
             this.executeCommand += '${host}/open/ruleEngine/rule/execute';
 
         },

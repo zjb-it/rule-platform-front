@@ -6,7 +6,7 @@
             <el-input
                 v-if="valueType!=='ELEMENT' && valueType!=='VARIABLE'"
                 v-model="valueForm.value"
-                :disabled="valueForm.valueType==='' || echo"
+                :disabled="valueType==='' || echo"
             ></el-input>
 
             <el-select
@@ -16,7 +16,7 @@
                 filterable
                 remote
                 clearable
-                :disabled="valueForm.valueType==='' || echo"
+                :disabled="valueType==='' || echo"
                 reserve-keyword
                 placeholder="请输入名称"
                 @focus="focusValue"
@@ -157,8 +157,9 @@ export default {
         }
     },
     created() {
-        if (this.data.value) {
-            this.valueForm=this.data
+        this.valueForm=this.data
+        if (this.valueForm.value) {
+            this.valueForm.value=''
         }
         if (this.echo) {
             if (this.valueType === 'ELEMENT') {

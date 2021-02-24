@@ -64,7 +64,6 @@
 
                     </el-form-item>
 
-
                     <el-form-item label="符号" style=" margin-left: 5%" prop="config.symbol">
 
                         <div>
@@ -437,6 +436,7 @@ export default {
                 //     "valueType":"NUMBER"
                 // }
                 value.valueDataType = value.valueType;
+                value.valueName=value.value
             }
         },
 

@@ -1,10 +1,30 @@
 <template>
     <div>
-        <h1>
-            帮助请查看
-            <a href="https://www.baidu.com">
-                <span style="color: blue">文档</span>
-            </a>
+        <h1>规则平台</h1>
+        <ol>
+
+            <li>
+                <h2>试用地址</h2>
+                <a target="_blank" href="https://www.pincheche.online/rule-front/#/rule">https://www.pincheche.online/rule-front/#/rule</a>
+            </li>
+
+            <li>
+                <h2>规则前端文档</h2>
+                <a target="_blank" href="https://github.com/zjb-it/rule-platform-front/blob/master/README.md">https://github.com/zjb-it/rule-platform-front/blob/master/README.md</a>
+            </li>
+
+            <li>
+                <h2>规则后台文档</h2>
+                <a target="_blank" href="https://github.com/zjb-it/rule-platform-server/blob/master/README.md">https://github.com/zjb-it/rule-platform-server/blob/master/README.md</a>
+            </li>
+
+            <li>
+                <h2>规则引擎文档</h2>
+                <a target="_blank" href="https://github.com/zjb-it/rule-engine/blob/master/README.md">https://github.com/zjb-it/rule-engine/blob/master/README.md</a>
+            </li>
+        </ol>
+        <h1>更多开源软件请查看
+        <a target="_blank" href="https://www.pincheche.online/">https://www.pincheche.online/</a>
         </h1>
 
     </div>

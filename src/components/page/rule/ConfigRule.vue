@@ -17,7 +17,7 @@
                 :rules="{required:true,message:'不能为空',trigger:'change'}"
             >
                 <el-select
-                    style="padding-left: 1.6%"
+
                     v-model="domain.conditionIds"
                     multiple
                     filterable
@@ -45,68 +45,36 @@
                    @click="delConditionGroup(domain)"></i>
             </el-form-item>
 
-            <el-form-item>
-                 <span slot="label">
-                     <p style="margin-top: 9%">规则结果</p>
-                    </span>
-                <el-row :gutter="10" STYLE="background-color: #F5F5F5;width: 45%;padding: 1.6% 1.6% 0 1.6%">
-                    <el-col :span="12" style="padding: 0">
-                        <el-form-item prop="action.valueType">
-                            <el-select
-                                @focus="focusValue"
-                                v-model="form.action.valueType" placeholder="数据类型" @change="clearValues" clearable>
-                                <el-option
-                                    v-for="item in valueDataTypes"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12" class="col-width" style="padding: 0">
-                        <el-form-item prop="action.value">
-                            <el-select
-                                style="width: 100%"
-                                v-if="form.action.valueType==='VARIABLE' || form.action.valueType==='ELEMENT'"
-                                v-model="form.action.value"
-                                filterable
-                                remote
-                                clearable
-                                :disabled="form.action.valueType===''"
-                                reserve-keyword
-                                placeholder="请输入名称"
-                                value-key="id"
-                                :remote-method="((queryString)=>{remoteValue(queryString,form.action.valueType)})"
-                            >
-                                <el-option
-                                    v-for="item in values"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item"
-                                >
-                                </el-option>
-                            </el-select>
 
-                            <el-input v-else
-                                      :disabled="form.action.valueType===''"
-                                      clearable
-                                      :placeholder="'请输入'+form.action.valueType"
-                                      v-model="form.action.value"
-                            ></el-input>
+            <el-form-item label="规则结果"  prop="action" STYLE="background-color: #F5F5F5;padding-top: 1.6%">
 
-                        </el-form-item>
+                <div style="display: flex">
+                    <!--如果是java对象，则只能使用变量 todo-->
+                    <el-select v-model="form.action.valueType"
+                               placeholder="请选择"
+                               @change="changeValueType()"
+                    >
+                        <el-option
+                            v-for="item in valueDataTypes"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                    <ConditionLeft ref="actionValue" style="width: 20%;margin-left: 2%"
+                                   v-bind:data="form.action"
+                                   v-bind:inputValueType="form.action.valueType"
+                    ></ConditionLeft>
+                </div>
+            </el-form-item>
 
-
-                    </el-col>
-
-                </el-row>
                 <el-form-item size="large" style="margin-top: 1%">
                     <el-button type="primary" @click="saveAndPreview">保存下一步</el-button>
                     <!--                    <el-button type="warning" @click="toCreate">上一步</el-button>-->
                     <el-button @click="$router.push('/rule')">取消</el-button>
                 </el-form-item>
-            </el-form-item>
+<!--            </el-form-item>-->
         </el-form>
 
     </div>
@@ -117,10 +85,14 @@
 <script>
 import request from '@/utils/request';
 import validateConstant from '@/utils/ValidateConstant';
-import { getRuleCache, setRuleCache } from '@/utils/RuleLocalStorage';
+import ConditionLeft from '@/components/page/base/ConditionLeft';
+
 
 export default {
     name: 'basetable',
+    components: {
+        ConditionLeft
+    },
     data() {
 
         return {
@@ -156,7 +128,7 @@ export default {
                 }
             ],
             conditions: [],
-            cacheConditionIds:[],
+            cacheConditionIds: [],
             form: {
                 action: {
                     value: '',
@@ -175,7 +147,7 @@ export default {
                 id: 0,
                 name: ''
             },
-            edit:false,
+            edit: false,
             rules: {
                 'action.value': [
                     {
@@ -193,43 +165,43 @@ export default {
         };
     },
     activated() {
-        this.conditions=[]
-        this.cacheConditionIds=[]
-        this.values=[]
+        this.conditions = [];
+        this.cacheConditionIds = [];
+        this.values = [];
         this.form.code = this.$route.params.form.code;
-        this.form.id=this.$route.params.form.id
-        this.form.name =  this.$route.params.form.name;
-        this.form.description =  this.$route.params.form.description;
+        this.form.id = this.$route.params.form.id;
+        this.form.name = this.$route.params.form.name;
+        this.form.description = this.$route.params.form.description;
         let action = this.$route.params.form.action;
         if (action) {
             this.edit = true;
-            this.form.action=action;
-            this.form.id=this.$route.params.form.id
-            this.form.conditionGroups=this.$route.params.form.conditionGroups
+            this.form.action = action;
+            this.form.id = this.$route.params.form.id;
+            this.form.conditionGroups = this.$route.params.form.conditionGroups;
 
-            this.form.conditionGroups.forEach((item,i)=>{
+            this.form.conditionGroups.forEach((item, i) => {
                 for (const condition of item.conditions) {
                     if (!item.conditionIds) {
-                        item.conditionIds=[]
+                        item.conditionIds = [];
                     }
                     item.conditionIds.push(condition.id);
                     if (this.cacheConditionIds.indexOf(condition.id) < 0) {
                         this.conditions.push(condition);
-                        this.cacheConditionIds.push(condition.id)
+                        this.cacheConditionIds.push(condition.id);
                     }
                 }
-            })
+            });
             if (this.form.action.valueType === 'ELEMENT') {
-                request.get('/element/get?id='+this.form.action.value).then(res=>{
-                    this.form.action.value=res.data
-                    this.values.push(res.data)
-                })
+                request.get('/element/get?id=' + this.form.action.value).then(res => {
+                    this.form.action.value = res.data;
+                    this.values.push(res.data);
+                });
 
-            }else if (this.form.action.valueType === 'VARIABLE') {
-                request.get('/variable/get?id='+this.form.action.value).then(res=>{
-                    this.form.action.value=res.data
-                    this.values.push(res.data)
-                })
+            } else if (this.form.action.valueType === 'VARIABLE') {
+                request.get('/variable/get?id=' + this.form.action.value).then(res => {
+                    this.form.action.value = res.data;
+                    this.values.push(res.data);
+                });
             }
 
         }
@@ -248,41 +220,45 @@ export default {
 
     },
     methods: {
+        changeValueType(){
+            this.$refs.actionValue.reset();
+        },
         clearValues() {
             this.values = [];
             this.form.action.value = '';
         },
         async saveAndPreview() {
             if (this.edit) {
-                this.addRule('/rule/update')
+                this.addRule('/rule/update');
             } else {
-                this.addRule('/rule/add')
+                this.addRule('/rule/add');
             }
 
         },
-        addRule(url) {
+        async addRule(url) {
             // debugger
-            // let a =await this.$refs.form.validate();
-            // console.log(a)
-
-            // this.$refs.form.validate((valid) => {
-            //     if (valid) {
-            this.form.conditionGroups.forEach((item, i) => {
-                item.order = i;
-            });
-            if (this.form.action.valueType === 'VARIABLE' || this.form.action.valueType === 'ELEMENT') {
-                this.form.action.valueDataType = this.form.action.value.valueDataType;
-                this.form.action.valueName = this.form.action.value.name;
-                this.form.action.value = this.form.action.value.id;
-            } else {
-                this.form.action.valueDataType = this.form.action.valueType;
+            let valid =await this.$refs.actionValue.validateForm();
+            if (!valid) {
+                return false;
             }
-            request.post(url, this.form).then(res => {
-                // setRuleCache(res.data)
-                this.$router.push({name:'PreviewRule',params:{'ruleId':res.data}});
+            this.$refs.form.validate((valid) => {
+                if (valid) {
+                    this.form.conditionGroups.forEach((item, i) => {
+                        item.order = i;
+                    });
+                    if (this.form.action.valueType === 'VARIABLE' || this.form.action.valueType === 'ELEMENT') {
+                        this.form.action.valueDataType = this.form.action.value.valueDataType;
+                        this.form.action.valueName = this.form.action.value.name;
+                        this.form.action.value = this.form.action.value.id;
+                    } else {
+                        this.form.action.valueDataType = this.form.action.valueType;
+                    }
+                    request.post(url, this.form).then(res => {
+                        // setRuleCache(res.data)
+                        this.$router.push({ name: 'PreviewRule', params: { 'ruleId': res.data } });
+                    });
+                }
             });
-            // }
-            // });
         },
 
         async focusValue() {

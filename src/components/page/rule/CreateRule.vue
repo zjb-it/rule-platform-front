@@ -60,8 +60,9 @@ export default {
         };
     },
     activated() {
-        this.form={}
+        this.$refs.form.resetFields()
         let ruleId = this.$route.params.ruleId;
+        this.edit=false;
         if (ruleId) {
             this.edit = true;
             request.get('rule/get?id=' + ruleId).then(res => {

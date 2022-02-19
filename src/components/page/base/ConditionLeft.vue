@@ -196,12 +196,7 @@ export default {
             return flag
         },
         async focusValue() {
-            console.log(this.valueType)
-            if (this.valueType) {
-                console.log("444444444444444")
-            }
 
-            console.log(this.valueType==='');
             if (this.valueType === 'ELEMENT') {
                 this.queryElement();
             } else if (this.valueType === 'VARIABLE') {

@@ -4,7 +4,7 @@
             class="sidebar-el-menu"
             :default-active="onRoutes"
             :collapse="collapse"
-            :default-openeds="['8','9']"
+            :default-openeds="['8','9','10']"
             background-color="#324157"
             text-color="#bfcbd9"
             active-text-color="#20a0ff"
@@ -83,24 +83,40 @@ export default {
                             title: '条件'
                         },
                         {
-                            index: 'function',
-                            title: 'http函数'
+                            icon: 'el-icon-lx-cascades',
+                            index: '9',
+                            title: '函数',
+                            subs: [
+                                {
+                                    index: 'function',
+                                    title: 'http函数'
+                                },
+                                {
+                                    index: 'sysFunction',
+                                    title: '系统函数'
+                                }
+                            ]
                         }
 
                     ]
                 },
                 {
                     icon: 'el-icon-lx-cascades',
-                    index: '9',
+                    index: '10',
                     title: '规则',
                     subs: [
                         {
                             index: 'rule',
                             title: '规则'
+                        },
+                        {
+                            index: 'ruleSet',
+                            title: '规则集'
                         }
 
                     ]
                 }
+
 
 
             ]

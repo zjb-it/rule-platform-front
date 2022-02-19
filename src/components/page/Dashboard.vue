@@ -5,7 +5,7 @@
 
             <li>
                 <h2>试用地址</h2>
-                <a target="_blank" href="https://www.pincheche.online/rule-front/#/rule">https://www.pincheche.online/rule-front/#/rule</a>
+                <a target="_blank" href="http://39.103.133.197/rule-front/">http://39.103.133.197/rule-front/</a>
             </li>
 
             <li>
@@ -24,7 +24,7 @@
             </li>
         </ol>
         <h1>更多开源软件请查看
-        <a target="_blank" href="https://www.pincheche.online/">https://www.pincheche.online/</a>
+        <a target="_blank" href="https://www.gamewar.cn">https://www.gamewar.cn</a>
         </h1>
 
     </div>

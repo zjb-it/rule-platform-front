@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 规则
+                    <i class="el-icon-lx-cascades"></i> 规则集
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -84,27 +84,6 @@ export default {
             tableData: [],
             editVisible: false,
             pageTotal: 0,
-            valueDataTypes: [
-                {
-                    value: 'COLLECTION',
-                    label: '集合'
-                },
-                {
-                    value: 'BOOLEAN',
-                    label: '布尔'
-                },
-                {
-                    value: 'STRING',
-                    label: '字符串'
-                }, {
-                    value: 'NUMBER',
-                    label: '数字'
-                },{
-                    value: 'JSONOBJECT',
-                    label: 'JSON对象'
-                }
-            ],
-
             idx: -1,
             id: -1
 
@@ -125,8 +104,7 @@ export default {
         },
         // 获取 easy-mock 的模拟数据
         getData() {
-            request.post("/rule/page",this.query).then(res => {
-                console.log(res);
+            request.post("/ruleSet/page",this.query).then(res => {
                 this.tableData = res.data;
                 this.pageTotal = res.total || 50;
             });
@@ -140,10 +118,18 @@ export default {
 
         // 编辑操作
         handleAdd() {
-            this.$router.push('/createRule')
+            this.$router.push({path:'/createRuleSet',query:{'id':1}})
 
         },
+        // 保存编辑
+        saveEdit() {
+            this.editVisible = false;
 
+            request.post("/element/add",this.form).then(res=>{
+                this.getData();
+            })
+
+        },
         // 分页导航
         handlePageChange(val) {
             this.$set(this.query.page, 'pageIndex', val);

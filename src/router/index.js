@@ -38,7 +38,12 @@ export default new Router({
                     // 富文本编辑器组件
                     path: '/function',
                     component: () => import(/* webpackChunkName: "editor" */ '../components/page/base/Function.vue'),
-                    meta: { title: '函数' }
+                    meta: { title: 'http函数' }
+                },
+                {
+                    path: '/sysFunction',
+                    component: () => import(/* webpackChunkName: "form" */ '../components/page/base/SysFunction.vue'),
+                    meta: { title: '系统函数' }
                 },
                 {
                     path: '/rule',
@@ -62,7 +67,23 @@ export default new Router({
                     name: 'PreviewRule',
                     component: () => import(/* webpackChunkName: "404" */ '../components/page/rule/PreviewRule.vue'),
                     meta: { title: '预览规则' }
-                }
+                },
+                {
+                    path: '/ruleSet',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/ruleSet/ruleSet.vue'),
+                    meta: { title: '规则集' }
+                },{
+                    path: '/createRuleSet',
+                    name: 'createRuleSet',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/ruleSet/CreateRuleSet.vue'),
+                    meta: { title: '创建规则' }
+                },
+                {
+                    path: '/configRuleSet',
+                    name: 'configRuleSet',
+                    component: () => import(/* webpackChunkName: "404" */ '../components/page/ruleSet/ConfigRuleSet.vue'),
+                    meta: { title: '创建规则' }
+                },
             ]
         },
         {
